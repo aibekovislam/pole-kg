@@ -43,7 +43,7 @@ const LoginScreen = ({ navigation }) => {
     });
 
     return () => {
-      Linking.removeEventListener('url', handleOpenURLWrapper);
+      Linking.removeAllListeners('url', handleOpenURLWrapper);
     };
   }, []);
 
