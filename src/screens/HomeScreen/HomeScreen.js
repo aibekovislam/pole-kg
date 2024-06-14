@@ -20,7 +20,7 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <View style={{ flex: 1, position: "relative" }}>
+    <View style={{ flex: 1, position: "relative", paddingBottom: 100 }}>
       <ScrollView>
         <Navbar />
         <ListOrMap />

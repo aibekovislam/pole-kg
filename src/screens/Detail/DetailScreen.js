@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, FlatList, ScrollView, Text, TouchableOpacity, View, Platform } from 'react-native';
+import { Animated, FlatList, ScrollView, Text, TouchableOpacity, View, Platform, TouchableHighlight } from 'react-native';
 import Navbar from '../../components/Header/Navbar';
 import CarouselImage from '../../components/Carousel/CarouselImage';
 import RatingNoSVG from '../../../assets/images/svgs/RatingNo';
@@ -30,24 +30,60 @@ export default function DetailScreen({ route, navigation }) {
     const fields_available_month = useSelector(state => state.fields.availabelFieldMonth);
     const fields_available_day = useSelector(state => state.fields.availabelFieldDay);
 
+    const today = new Date();
+    const [todaySlots, setTodaySlots] = useState([]);
+    const [tomorrowSlots, setTomorrowSlots] = useState([]);
+    const [selectedDateSlots, setSelectedDateSlots] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [isCalendarVisible, setCalendarVisibility] = useState(false);
+    const [todayOrTomorrow, setTodayOrTomorrow] = useState('today');
+
+    const translateX = useRef(new Animated.Value(0)).current;
+    const colorAnimation = useRef(new Animated.Value(0)).current;
+
     useEffect(() => {
-        const today = new Date();
         const data = {
             field_id: id,
             year: today.getFullYear(),
             month: today.getMonth() + 1 
-        }
+        };
         dispatch(fetchAvailable(data));
+        dispatch(fetchField(id));
+        fetchTodaySlots();
+        fetchTomorrowSlots();
     }, [dispatch, id]);
+
+    const fetchTodaySlots = () => {
+        const todayDate = today.toISOString().split('T')[0];
+        const data = {
+            field_id: id,
+            date: todayDate
+        };
+        dispatch(fetchAvailableDay(data));
+    };
+
+    const fetchTomorrowSlots = () => {
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        const tomorrowDate = tomorrow.toISOString().split('T')[0];
+        const data = {
+            field_id: id,
+            date: tomorrowDate
+        };
+        dispatch(fetchAvailableDay(data));
+    };
 
     useEffect(() => {
-        dispatch(fetchField(id));
-    }, [dispatch, id]);
-
-    const translateX = useRef(new Animated.Value(0)).current;
-
-    const [isCalendarVisible, setCalendarVisibility] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(null);
+        if (fields_available_day && !selectedDate) {
+            if (todayOrTomorrow === 'today') {
+                setTodaySlots(transformSlots(fields_available_day));
+            } else if (todayOrTomorrow === 'tomorrow') {
+                setTomorrowSlots(transformSlots(fields_available_day));
+            }
+        } else if (fields_available_day && selectedDate) {
+            setSelectedDateSlots(transformSlots(fields_available_day));
+        }
+    }, [fields_available_day, todayOrTomorrow]);
 
     useEffect(() => {
         if (selectedDate) {
@@ -59,6 +95,19 @@ export default function DetailScreen({ route, navigation }) {
         }
     }, [dispatch, id, selectedDate]);
 
+    const transformSlots = (slots) => {
+        return slots.map(slot => {
+            const startTime = new Date(slot.start_time);
+            const endTime = new Date(slot.end_time);
+            const options = { hour: '2-digit', minute: '2-digit', hour12: false };
+    
+            return {
+                time: `с ${startTime.toLocaleTimeString([], options)} до ${endTime.toLocaleTimeString([], options)}`,
+                available: slot.available
+            };
+        });
+    };
+
     const showCalendar = () => {
         setCalendarVisibility(true);
     };
@@ -69,6 +118,24 @@ export default function DetailScreen({ route, navigation }) {
 
     const handleDateSelect = (date) => {
         setSelectedDate(date);
+        setTodayOrTomorrow(null);
+    };
+
+    const formatDate = (date) => {
+        const options = { day: 'numeric', month: 'long' };
+        return new Intl.DateTimeFormat('ru-RU', options).format(new Date(date));
+    };
+
+    const handleChangeTodayOrTommorow = (item) => {
+        setTodayOrTomorrow(item);
+        setSelectedDate(null);
+        Animated.timing(colorAnimation, {
+            toValue: item === 'today' ? 0 : 1,
+            duration: 300,
+            useNativeDriver: false,
+        }).start();
+        fetchTodaySlots();
+        fetchTomorrowSlots();
     };
 
     const onGestureEvent = Animated.event(
@@ -89,33 +156,31 @@ export default function DetailScreen({ route, navigation }) {
         }
     };
 
-    const slots = field?.availability.map(slot => {
-        const startTime = new Date(slot.start_time);
-        const endTime = new Date(slot.end_time);
-        const options = { hour: '2-digit', minute: '2-digit', hour12: false };
-
-        return {
-            time: `с ${startTime.toLocaleTimeString([], options)} до ${endTime.toLocaleTimeString([], options)}`,
-            available: slot.available
-        };
-    }) || [];
-
-    const slots2 = fields_available_day?.map(slot => {
-        const startTime = new Date(slot.start_time);
-        const endTime = new Date(slot.end_time);
-        const options = { hour: '2-digit', minute: '2-digit', hour12: false };
-
-        return {
-            time: `с ${startTime.toLocaleTimeString([], options)} до ${endTime.toLocaleTimeString([], options)}`,
-            available: slot.available
-        };
-    }) || [];
-
     const renderItem = ({ item }) => {
         return (
             <ReviewCard data={item} />
         );
     };
+
+    const todayBackgroundColor = selectedDate ? '#ffffff' : colorAnimation.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['#237133', '#ffffff']
+    });
+
+    const tomorrowBackgroundColor = selectedDate ? '#ffffff' : colorAnimation.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['#ffffff', '#237133']
+    });
+
+    const todayTextColor = selectedDate ? '#237133' : colorAnimation.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['#ffffff', '#237133']
+    });
+
+    const tomorrowTextColor = selectedDate ? '#237133' : colorAnimation.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['#237133', '#ffffff']
+    });
 
     const content = (
         <View style={[styles.detail, { position: "relative" }]}>
@@ -148,17 +213,27 @@ export default function DetailScreen({ route, navigation }) {
                     <View style={styles.detail_info}>
                         <View style={styles.detail_calendar}>
                             <View style={{ flexDirection: "row" }}>
-                                <View style={styles.fill_detail_calendar}><Text style={{ color: "#ffffff" }}>Сегодня</Text></View>
-                                <View style={[styles.fill_detail_calendar_available, { width: 70, borderColor: "#237133" }]}><Text style={{ color: "#237133" }}>Завтра</Text></View>
+                                <TouchableHighlight underlayColor={"#f2f2f2"} onPress={() => handleChangeTodayOrTommorow('today')} style={styles.calendar_button}>
+                                    <Animated.View style={[styles.calendar_not_fill, { backgroundColor: todayBackgroundColor }]}>
+                                        <Animated.Text style={{ color: todayTextColor }}>Сегодня</Animated.Text>
+                                    </Animated.View>
+                                </TouchableHighlight>
+                                <TouchableHighlight underlayColor={"#f2f2f2"} onPress={() => handleChangeTodayOrTommorow('tomorrow')} style={styles.calendar_button}>
+                                    <Animated.View style={[styles.calendar_not_fill, { backgroundColor: tomorrowBackgroundColor }]}>
+                                        <Animated.Text style={{ color: tomorrowTextColor }}>Завтра</Animated.Text>
+                                    </Animated.View>
+                                </TouchableHighlight>
                             </View>
-                            <View style={styles.choose_calendar} onTouchEnd={showCalendar}>
+                            <TouchableOpacity style={styles.choose_calendar} onPress={showCalendar}>
                                 <Text>Выбрать дату</Text>
                                 <CalendarSVG />
-                            </View>
+                            </TouchableOpacity>
                         </View>
-                        <Text style={{ fontSize: 16, marginTop: 15 }}>Свободные поля на сегодня</Text>
+                        <Text style={{ fontSize: 16, marginTop: 15 }}>Свободные поля на {selectedDate ? formatDate(selectedDate) : todayOrTomorrow === 'today' ? 'сегодня' : 'завтра'}</Text>
                         <View style={styles.availabel_slots}>
-                            { fields_available_day ? <ScheduleCarousel data={slots2} /> : <ScheduleCarousel data={slots} /> }
+                            { selectedDate ? (<ScheduleCarousel data={selectedDateSlots} />) : (
+                                todayOrTomorrow === 'today' ? (<ScheduleCarousel data={todaySlots} />) : (<ScheduleCarousel data={tomorrowSlots} />)
+                            )}
                         </View>
                     </View>
                     <View style={styles.detail_other_info}>

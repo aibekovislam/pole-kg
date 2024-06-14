@@ -116,6 +116,18 @@ export const styles = StyleSheet.create({
         marginHorizontal: 5,
         marginTop: 10
     },
+    calendar_not_fill: {
+        width: 70,
+        height: 30,
+        borderRadius: 50,
+        justifyContent: "center",
+        alignItems: "center",
+        marginHorizontal: 5,
+        marginTop: 10,
+        borderWidth: 1.5,
+        borderColor: "#237133",
+        color: "#237133"
+    },
     notFill_detail_calendar: {
         width: 110,
         height: 30,
@@ -290,5 +302,5 @@ export const styles = StyleSheet.create({
         bottom: 20,
         rowGap: 10,
         paddingHorizontal: 15
-    }    
+    },
 });
