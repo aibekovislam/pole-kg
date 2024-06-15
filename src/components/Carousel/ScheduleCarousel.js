@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   ordered_block: {
-    width: 110,
+    alignSelf: "flex-start",
     height: 30,
     borderWidth: 1,
     borderRadius: 50,
@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 5,
     marginTop: 10,
+    paddingHorizontal: 10
   },
   ordered_block__title: {
     fontSize: 12

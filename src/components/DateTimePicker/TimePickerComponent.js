@@ -2,7 +2,7 @@ import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 
-const TimePickerComponent = () => {
+const TimePickerComponent = ({ payBlocked, backgroundColor }) => {
   const [fromTime, setFromTime] = useState({ hours: '00', minutes: '00' });
   const [toTime, setToTime] = useState({ hours: '00', minutes: '00' });
   const [showFromPicker, setShowFromPicker] = useState(false);
@@ -67,12 +67,12 @@ const TimePickerComponent = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Укажите время и дату</Text>
+      { payBlocked ? (null) : (<Text style={styles.label}>Укажите время</Text>) }
       <View style={styles.timePickerRow}>
-        <TouchableOpacity style={styles.timeButton} onPress={() => setShowFromPicker(true)}>
+        <TouchableOpacity style={[styles.timeButton, {backgroundColor: backgroundColor}]} onPress={() => setShowFromPicker(true)}>
           <Text style={styles.timeButton_text}>{`с ${fromTime.hours}:${fromTime.minutes}`}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.timeButton} onPress={() => setShowToPicker(true)}>
+        <TouchableOpacity style={[styles.timeButton, {backgroundColor: backgroundColor}]} onPress={() => setShowToPicker(true)}>
           <Text style={styles.timeButton_text}>{`до ${toTime.hours}:${toTime.minutes}`}</Text>
         </TouchableOpacity>
       </View>

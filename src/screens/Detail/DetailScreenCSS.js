@@ -117,7 +117,8 @@ export const styles = StyleSheet.create({
         marginTop: 10
     },
     calendar_not_fill: {
-        width: 70,
+        alignContent: "flex-start",
+        paddingHorizontal: 10,
         height: 30,
         borderRadius: 50,
         justifyContent: "center",
@@ -141,7 +142,8 @@ export const styles = StyleSheet.create({
         color: "#B3B3B3"
     },
     choose_calendar: {
-        width: 135,
+        alignSelf: "flex-start",
+        paddingHorizontal: 10,
         height: 30,
         borderRadius: 50,
         justifyContent: "center",
@@ -241,7 +243,7 @@ export const styles = StyleSheet.create({
     parametrs_map: {
         position: "relative",
         width: "100%",
-        height: 350,
+        alignSelf: "flex-start",
         alignItems: "center",
         marginTop: 10,
         backgroundColor: "#ffffff",
@@ -302,5 +304,10 @@ export const styles = StyleSheet.create({
         bottom: 20,
         rowGap: 10,
         paddingHorizontal: 15
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

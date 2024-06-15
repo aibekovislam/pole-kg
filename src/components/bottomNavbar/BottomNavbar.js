@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   navigation__item: {
-    width: 70,
+    alignSelf: "flex-start",
     height: 50,
     justifyContent: "center",
     alignItems: "center",

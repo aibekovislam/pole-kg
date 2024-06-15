@@ -1,37 +1,44 @@
-import React from 'react'
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
-const MapPole = ({ location }) => {
+const MapPole = ({ location_one, location_two }) => {
     const initialRegion = {
-        latitude: location ? location[0] : 16.97274101999902,
-        longitude: location ? location[1] : 8.789062500000002,
+        latitude: location_one,
+        longitude: location_two,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     };
 
     return (
+        <View style={styles.mapContainer}> 
             <MapView
                 style={styles.map}
                 initialRegion={initialRegion}
             >
-                <Marker
-                    coordinate={{ latitude: 37.78825, longitude: -122.4324 }}
-                    title={"Заголовок маркера"}
-                    description={"Описание маркера"}
-                />
+                {location_one && location_two && (
+                    <Marker
+                        coordinate={{ latitude: location_one, longitude: location_two }}
+                        title={"Заголовок маркера"}
+                        description={"Описание маркера"}
+                    />
+                )}
             </MapView>
-    )
-}
+        </View>
+    );
+};
 
 const styles = StyleSheet.create({
-    map: {
-        ...StyleSheet.absoluteFillObject,
-        width: 340,
+    mapContainer: {
+        width: '100%',
         height: 265,
         borderRadius: 20,
-        position: "static"
-    }
+        overflow: 'hidden',
+        marginTop: 15
+    },
+    map: {
+        ...StyleSheet.absoluteFillObject,
+    },
 });
 
-export default MapPole
+export default MapPole;
