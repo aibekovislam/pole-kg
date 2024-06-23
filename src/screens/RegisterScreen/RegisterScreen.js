@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Header from '../../components/Header/Header';
 import Button from '../../components/Button/Button';
 import PersonalSVG from '../../../assets/images/svgs/PersonalSVG.JSX';
@@ -7,81 +7,97 @@ import PhoneSVG from '../../../assets/images/svgs/PhoneSVG';
 import TelegramIcon from '../../../assets/images/svgs/TelegramSVG';
 import CheckPIN from '../../components/CheckPIN/CheckPIN';
 import { openTelegramBot } from '../../helpers/linkTelegram';
+import { useFonts } from 'expo-font';
 
 const RegisterScreen = ({ navigation }) => {
   const nameInputRef = useRef(null);
   const phoneInputRef = useRef(null);
   const [number, onChangeNumber] = React.useState('');
-  const [ checkPIN, setCheckPIN ] = React.useState(false);
-  const [ pinTyped, setPinTyped ] = React.useState(false);
+  const [checkPIN, setCheckPIN] = React.useState(false);
+  const [pinTyped, setPinTyped] = React.useState(false);
+
+  const [fontsLoaded] = useFonts({
+    'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
+    'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
+    'Rubik-600': require("../../../assets/fonts/Rubik-SemiBold.ttf"),
+    'Rubik-700': require("../../../assets/fonts/Rubik-Bold.ttf")
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   const handleCheckPIN = () => {
     setCheckPIN(true);
   }
 
   return (
-    <View>
-      <Header />
-      <View style={styles.login_screen_block}>
-        <View style={styles.container}>
-          <View style={styles.switchContainer}>
-            <Text style={[styles.switchText, styles.switchText_main]} onPress={() => navigation.navigate('Register')}>Регистрация</Text>
-            <Text style={styles.switchText} onPress={() => navigation.navigate('Login')}>Вход</Text>
-          </View>
-          { checkPIN ? (
-            <>
-              <CheckPIN setPinTyped={setPinTyped} />
-              <View style={styles.flexGrow}/>
-              <View style={styles.btn_block}>
-                <Button pinTyped={pinTyped} onPress={() => navigation.navigate('Home')} title={'Продолжить'} />
-              </View>
-            </>
-          ) : (
-            <>
-              <Text style={styles.input_text}>Регистрация через номер</Text>
-              <View style={styles.inputs}>
-                <TouchableOpacity style={styles.input_block} onPress={() => nameInputRef.current.focus()}>
-                  <PersonalSVG style={styles.input_svg} />
-                  <TextInput
-                    ref={nameInputRef}
-                    style={styles.input}
-                    placeholder="Введите свое имя"
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.input_block} onPress={() => phoneInputRef.current.focus()}>
-                  <PhoneSVG style={styles.input_svg} />
-                  <TextInput
-                    ref={phoneInputRef}
-                    style={styles.input}
-                    onChangeText={onChangeNumber}
-                    value={number}
-                    keyboardType="numeric"
-                    placeholder="Введите свой номер"
-                  />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.flexGrow} />
-              <View style={styles.btn_block}>
-                <View style={styles.flex_telegram}>
-                  <Text style={styles.flex_telegram_text}>Регистрация через</Text>
-                  <TouchableOpacity onPress={() => openTelegramBot()}>
-                    <TelegramIcon />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View>
+        <Header />
+        <View style={styles.login_screen_block}>
+          <View style={styles.container}>
+            <View style={styles.switchContainer}>
+              <Text style={[styles.switchText, styles.switchText_main]} onPress={() => navigation.navigate('Register')}>Регистрация</Text>
+              <Text style={styles.switchText} onPress={() => navigation.navigate('Login')}>Вход</Text>
+            </View>
+            {checkPIN ? (
+              <>
+                <CheckPIN setPinTyped={setPinTyped} />
+                <View style={styles.flexGrow} />
+                <View style={styles.btn_block}>
+                  <Button pinTyped={pinTyped} onPress={() => navigation.navigate('Home')} title={'Продолжить'} />
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={styles.input_text}>Регистрация через номер</Text>
+                <View style={styles.inputs}>
+                  <TouchableOpacity style={styles.input_block} onPress={() => nameInputRef.current.focus()}>
+                    <PersonalSVG style={styles.input_svg} />
+                    <TextInput
+                      ref={nameInputRef}
+                      style={styles.input}
+                      placeholder="Введите свое имя"
+                      placeholderTextColor={"gray"}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.input_block} onPress={() => phoneInputRef.current.focus()}>
+                    <PhoneSVG style={styles.input_svg} />
+                    <TextInput
+                      ref={phoneInputRef}
+                      style={styles.input}
+                      onChangeText={onChangeNumber}
+                      value={number}
+                      keyboardType="numeric"
+                      placeholder="Введите свой номер"
+                      placeholderTextColor={"gray"}
+                    />
                   </TouchableOpacity>
                 </View>
-                <Button title="Продолжить" onPress={handleCheckPIN} />
-              </View>
-            </>
-          ) }
+                <View style={styles.flexGrow} />
+                <View style={styles.btn_block}>
+                  <View style={styles.flex_telegram}>
+                    <Text style={styles.flex_telegram_text}>Регистрация через</Text>
+                    <TouchableOpacity onPress={() => openTelegramBot()}>
+                      <TelegramIcon />
+                    </TouchableOpacity>
+                  </View>
+                  <Button title="Продолжить" onPress={handleCheckPIN} />
+                </View>
+              </>
+            )}
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
   login_screen_block: {
+    height: "85%",
     padding: 15,
-    height: '88.5%',
     borderRadius: 20,
     flexDirection: 'column',
   },
@@ -99,9 +115,11 @@ const styles = StyleSheet.create({
   },
   switchText: {
     fontSize: 18,
+    fontFamily: "Rubik-500"
   },
   switchText_main: {
     fontWeight: '700',
+    fontFamily: "Rubik-700"
   },
   inputs: {
     padding: 20,
@@ -142,6 +160,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     columnGap: 10,
     marginBottom: 10
+  },
+  flex_telegram_text: {
+    fontFamily: "Rubik-400"
   }
 });
 

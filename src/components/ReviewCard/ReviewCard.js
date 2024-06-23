@@ -5,7 +5,7 @@ import { ru } from 'date-fns/locale';
 import { renderRating } from '../../helpers/renderRating';
 import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler';
 
-const ReviewCard = ({ data }) => {
+const ReviewCard = ({ data = {} }) => {
   let formattedDate = formatDistanceToNow(new Date(data.created_at), { addSuffix: true, locale: ru });
   formattedDate = formattedDate.replace('около ', '');
 

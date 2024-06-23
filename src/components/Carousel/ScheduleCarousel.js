@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 
-const ScheduleCarousel = ({ data }) => {
+const ScheduleCarousel = ({ data = [] }) => {
   const renderItem = ({ item }) => {
     return (
       <View style={[styles.ordered_block, item.available ? { borderColor: "#237133" } : { borderColor: "#B3B3B3" }]}>

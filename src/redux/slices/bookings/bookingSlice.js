@@ -17,7 +17,7 @@ const bookingSlice = createSlice({
 });
 
 
-export const toRent = createAsyncThunk('booking/post', async (data, token, { dispatch }) => {
+export const toRent = createAsyncThunk('booking/post', async (data = [], token = '', { dispatch }) => {
     try {
         const response = await axios.post(`${API_URL}/bookings`, data, {
             headers: {

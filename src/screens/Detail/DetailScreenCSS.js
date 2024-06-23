@@ -166,7 +166,6 @@ export const styles = StyleSheet.create({
     field_size_info: {
         width: "100%",
         backgroundColor: "#ffffff",
-        marginTop: 15,
         borderRadius: 20,
         justifyContent: "center",
         alignItems: "center",
@@ -310,4 +309,8 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    input_review: {
+        paddingHorizontal: 10,
+        maxWidth: 200
+    }
 });

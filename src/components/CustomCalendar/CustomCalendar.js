@@ -24,11 +24,11 @@ LocaleConfig.locales['ru'] = {
 
 LocaleConfig.defaultLocale = 'ru';
 
-const CustomCalendar = ({ isVisible, onClose, onDateSelect, fields_available_month }) => {
+const CustomCalendar = ({ isVisible = false, onClose = () => {}, onDateSelect = () => {}, fields_available_month = {} }) => {
   const [selectedDate, setSelectedDate] = useState(null);
 
   const handleDayPress = (day) => {
-    const formattedDate = day.dateString; // This is already in the format YYYY-MM-DD
+    const formattedDate = day.dateString;
     setSelectedDate(formattedDate);
     onDateSelect(formattedDate);
     onClose();

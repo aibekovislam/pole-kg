@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Navbar from "../../components/Header/Navbar";
 import MainCard from "../../components/MainCard/MainCard";
 import BottomNavbar from "../../components/bottomNavbar/BottomNavbar";
@@ -22,7 +22,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={{ flex: 1, position: "relative", paddingBottom: 100 }}>
       <ScrollView>
-        <Navbar />
+        <Navbar onPress={() => navigation.navigate('Filter')} filterShow={true} />
         <ListOrMap />
         <View style={styles.card_list}>
           {fields.map((field, index) => (
@@ -48,10 +48,9 @@ const styles = StyleSheet.create({
   },
   bottomNavbar_block: {
     width: "100%",
-    height: "auto",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "transparent",
+    backgroundColor: "none",
     position: "absolute",
     bottom: 20,
     paddingHorizontal: 15

@@ -5,7 +5,7 @@ import { API_URL } from '../../utils/consts';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-export default function CarouselImage({ data }) {
+export default function CarouselImage({ data = [] }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
 

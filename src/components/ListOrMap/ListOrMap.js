@@ -1,9 +1,15 @@
+import { useFonts } from 'expo-font';
 import React, { useState, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Animated } from 'react-native';
 
 export default function ListOrMap() {
   const [selected, setSelected] = useState('list');
   const animation = useRef(new Animated.Value(0)).current;
+
+  const [fontsLoaded] = useFonts({
+    'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
+    'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf")
+  });
 
   const handleSwitch = (value) => {
     setSelected(value);
@@ -80,9 +86,11 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#000',
+    fontFamily: "Rubik-400"
   },
   selectedText: {
     color: 'black',
     fontWeight: 'bold',
+    fontFamily: "Rubik-500"
   },
 });

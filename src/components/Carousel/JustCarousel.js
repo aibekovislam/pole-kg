@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 
-const JustCarousel = ({ data }) => {
+const JustCarousel = ({ data = [] }) => {
   const renderItem = ({ item }) => {
     return (
       <View style={[styles.ordered_block, { borderColor: "#237133" }]}>

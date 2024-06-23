@@ -1,19 +1,38 @@
-import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useRef } from 'react';
+import { ScrollView, StyleSheet, Text, View, Platform, Animated } from 'react-native';
 import Navbar from "../../components/Header/Navbar";
 import BottomNavbar from "../../components/bottomNavbar/BottomNavbar";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Card from '../../components/MainCard/Card';
-import TimePickerComponent from '../../components/DateTimePicker/TimePickerComponent';
 import CalendarSVG from '../../../assets/images/svgs/CalendarSVG';
 import Button from '../../components/Button/Button';
+import { GestureHandlerRootView, PanGestureHandler, State } from 'react-native-gesture-handler';
+import { formatSlotEnd, formatSlotStart } from '../../helpers/format';
 
 export default function PayScreen({ route, navigation }) {
   const dispatch = useDispatch();
-  const { field, selectedDate } = route.params;
+  const { field, selectedDate, fromTime, toTime } = route.params;
 
-  return (
-    <View style={{ flex: 1, position: "relative", paddingBottom: 100 }}>
+  const translateX = useRef(new Animated.Value(0)).current;
+
+  const onHandlerStateChange = ({ nativeEvent }) => {
+    if (nativeEvent.state === State.END && nativeEvent.translationX > 50) {
+      navigation.goBack();
+    }
+  };
+
+  const onGestureEvent = Animated.event(
+    [{ nativeEvent: { translationX: translateX } }],
+    { useNativeDriver: true }
+  );  
+
+  const startHours = parseInt(formatSlotStart(fromTime).hours, 10);
+  const endHours = parseInt(formatSlotEnd(toTime).hours, 10);
+
+  const hoursDiff = endHours - startHours;
+
+  const content = (
+    <View style={{ height: "100%" }}>
       <ScrollView>
         <Navbar />
         <Text style={{ textAlign: "center", fontSize: 20, marginTop: 10 }}>Оплата</Text>
@@ -23,7 +42,20 @@ export default function PayScreen({ route, navigation }) {
         <View style={{paddingHorizontal: 15}}>
             <View style={styles.pay_block}>
                 <View style={styles.detail_time_picker}>
-                {/* <TimePickerComponent payBlocked={true} backgroundColor={"#F0F0F0"} fromTime={fromTime} setFromTime={setFromTime} toTime={toTime} setToTime={setToTime} /> */}
+                  <View style={styles.time_buttons}>
+                    <View style={styles.time_button}>
+                      <View style={{ flexDirection: "row", columnGap: 5 }}>
+                        <Text style={[styles.time, {  color: "#828282"}]}>c</Text>
+                        <Text style={styles.time}>{ `${formatSlotStart(fromTime).hours}:${formatSlotStart(fromTime).minutes}` }</Text>
+                      </View>
+                    </View>
+                    <View style={styles.time_button}>
+                        <View style={{ flexDirection: "row", columnGap: 5 }}>
+                          <Text style={[styles.time, {  color: "#828282"}]}>до</Text>
+                          <Text style={styles.time}>{ `${formatSlotEnd(toTime).hours}:${formatSlotEnd(toTime).minutes}` }</Text>
+                        </View>
+                    </View>
+                  </View>
                 </View>
                 <View style={styles.calendar_block}>
                     <View style={styles.calendar}>
@@ -32,7 +64,7 @@ export default function PayScreen({ route, navigation }) {
                     </View>
                 </View>
                 <View style={[styles.calendar_block, { backgroundColor: "white", borderWidth: 0.5, borderColor: "#B3B3B3" }]}>
-                    <Text style={styles.sum_text}>Сумма на оплату: <Text style={styles.money}>3000 сом</Text></Text>
+                    <Text style={styles.sum_text}>Сумма на оплату: <Text style={styles.money}>{`${field.price * hoursDiff}`} сом</Text></Text>
                 </View>
             </View>
         </View>
@@ -43,35 +75,31 @@ export default function PayScreen({ route, navigation }) {
       </View>
     </View>
   );
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1, position: "relative", paddingBottom: 160 }}>
+      {Platform.OS === 'ios' ? (
+        <PanGestureHandler onGestureEvent={onGestureEvent} onHandlerStateChange={onHandlerStateChange}>
+          <Animated.View style={{ transform: [{ translateX }] }}>
+            {content}
+          </Animated.View>
+        </PanGestureHandler>
+      ) : (
+        content
+      )}
+    </GestureHandlerRootView>
+  );
 }
 
 const styles = StyleSheet.create({
-  card_list: {
-    width: "100%",
-    height: "auto",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 15,
-    rowGap: 15
-  },
-  bottomNavbar_block: {
-    width: "100%",
-    height: "auto",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "transparent",
-    position: "absolute",
-    bottom: 20,
-    paddingHorizontal: 15
-  },
-  detail_time_picker: {
-    width: "100%"
-  },
   pay_block: {
     marginTop: 10,
     backgroundColor: "#ffffff",
     borderRadius: 20,
     padding: 15
+  },
+  detail_time_picker: {
+    width: "100%"
   },
   calendar_block: {
     borderRadius: 20,
@@ -99,5 +127,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "black",
     fontWeight: "700"
-  }
+  },
+  time_buttons: {
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  time_button: {
+    backgroundColor: '#F0F0F0',
+    borderRadius: 20,
+    width: '47%',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  time: {
+    fontWeight: "700",
+    fontSize: 15
+  },
+  bottomNavbar_block: {
+    width: "100%",
+    height: "auto",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "transparent",
+    position: "absolute",
+    top: '100%',
+    paddingHorizontal: 15,
+    rowGap: 10
+  },
 });

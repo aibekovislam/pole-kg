@@ -7,8 +7,16 @@ import RatingNoSVG from '../../../assets/images/svgs/RatingNo';
 import SaveSVG from '../../../assets/images/svgs/SaveSVG';
 import SizeSVG from '../../../assets/images/svgs/SizeSVG';
 import ScheduleCarousel from '../Carousel/ScheduleCarousel';
+import { useFonts } from 'expo-font';
+import SaveFilledSVG from '../../../assets/images/svgs/SaveFilled';
 
-export default function MainCard({ field, onPress }) {
+export default function MainCard({ field = {}, onPress = () => {}, isFavorite = false }) {
+
+    const [fontsLoaded] = useFonts({
+        'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
+        'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf")
+    });
+
     const slots = field.availability.map(slot => {
         const startTime = new Date(slot.start_time);
         const endTime = new Date(slot.end_time);
@@ -36,19 +44,20 @@ export default function MainCard({ field, onPress }) {
                     </View>
                     <TouchableOpacity onPress={() => onPress(field.id)} style={styles.title_save}>
                         <Text style={styles.title}>{ field.name }</Text>
-                        <SaveSVG />
+                        { isFavorite ? (<SaveFilledSVG />) : (<SaveSVG/>) }
                     </TouchableOpacity>
                     <View style={styles.price_and_size}>
-                        <Text style={styles.price_title}>{ field.price } час</Text>
+                        <Text style={styles.price_title}>{ parseInt(field.price) } час</Text>
                         <View style={styles.size_block}>
                             <SizeSVG/>
                             <Text style={styles.size_title}>Размер: Стандарт ({ field.size })</Text>
                         </View>
                     </View>
-                    <View style={styles.schedule}>
-                        <Text style={styles.ordered_title}>Занято / Свободно</Text>
-                        <ScheduleCarousel data={slots} />
-                    </View>
+                    {/* <View style={styles.schedule}> */}
+                        {/* <Text style={styles.ordered_title}>Занято / Свободно</Text> */}
+                        {/* <ScheduleCarousel data={slots} /> */}
+                    {/* </View> */}
+                    <Text style={styles.address}>{ field.address }</Text>
                     <View style={{ marginTop: 15 }}>
                         <Button title={"Забронировать"} onPress={() => onPress(field.id)} />
                     </View>
@@ -91,6 +100,7 @@ const styles = StyleSheet.create({
         fontWeight: "500",
         lineHeight: 27,
         maxWidth: 220,
+        fontFamily: "Rubik-500"
     },
     price_and_size: {
         marginTop: 10,
@@ -104,11 +114,13 @@ const styles = StyleSheet.create({
     },
     price_title: {
         fontSize: 15,
-        fontWeight: "500"
+        fontWeight: "500",
+        fontFamily: "Rubik-400"
     },
     size_title: {
         fontSize: 12,
-        color: "#777777"
+        color: "#777777",
+        fontFamily: "Rubik-400"
     },
     schedule: {
         marginTop: 10
@@ -116,6 +128,7 @@ const styles = StyleSheet.create({
     ordered_title: {
         fontSize: 15,
         fontWeight: "500",
+        fontFamily: "Rubik-400"
     },
     ordered_blocks: {
         flexDirection: "row",
@@ -134,5 +147,10 @@ const styles = StyleSheet.create({
     ordered_block__title: {
         color: "#D46060",
         fontSize: 12
+    },
+    address: {
+        color: "#237133",
+        marginTop: 10,
+        fontFamily: "Rubik-400"
     }
 });

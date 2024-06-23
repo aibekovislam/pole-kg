@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
-const MapPole = ({ location_one, location_two }) => {
+const MapPole = ({ location_one = 0, location_two = 0 }) => {
     const initialRegion = {
         latitude: location_one,
         longitude: location_two,
@@ -19,8 +19,6 @@ const MapPole = ({ location_one, location_two }) => {
                 {location_one && location_two && (
                     <Marker
                         coordinate={{ latitude: location_one, longitude: location_two }}
-                        title={"Заголовок маркера"}
-                        description={"Описание маркера"}
                     />
                 )}
             </MapView>

@@ -1,3 +1,4 @@
+import { useFonts } from 'expo-font';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -9,6 +10,13 @@ const CheckPIN = ({ setPinTyped }) => {
 
     const [errorPIN, setErrorPIN] = useState(false);
     const [pinValues, setPinValues] = useState(['', '', '', '']);
+
+    const [ fontsLoaded ] = useFonts({
+        'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
+        'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
+        'Rubik-600': require("../../../assets/fonts/Rubik-SemiBold.ttf"),
+        'Rubik-700': require("../../../assets/fonts/Rubik-Bold.ttf")
+    })
 
     useEffect(() => {
         const allFieldsFilled = pinValues.every(value => value.length === 1);
@@ -103,7 +111,8 @@ const styles = StyleSheet.create({
     check_pin_text: {
         textAlign: "center",
         fontSize: 16,
-        fontWeight: "500"
+        fontWeight: "500",
+        fontFamily: "Rubik-500"
     },
     check_pin_code_details: {
         marginTop: 15,
@@ -132,6 +141,7 @@ const styles = StyleSheet.create({
         color: "#828282",
         fontWeight: "400",
         width: 300,
+        fontFamily: "Rubik-400"
     },
     checkPIN_error: {
         marginTop: 10,
@@ -141,10 +151,12 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     error_pin: {
-        color: "#CA3737"
+        color: "#CA3737",
+        fontFamily: "Rubik-400"
     },
     new_pin: {
-        color: "#0085FF"
+        color: "#0085FF",
+        fontFamily: "Rubik-400"
     }
 });
 

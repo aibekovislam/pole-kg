@@ -5,7 +5,7 @@ import OrderSVG from '../../../assets/images/svgs/OrderSVG';
 import FavoriteSVG from '../../../assets/images/svgs/FavoriteSVG';
 import ProfileSVG from '../../../assets/images/svgs/ProfileSVG';
 
-const BottomNavbar = ({ item, navigation }) => {
+const BottomNavbar = ({ item = '', navigation = {} }) => {
   return (
     <View style={styles.bottomNavbar}>
       <View style={styles.navigation}>

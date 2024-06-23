@@ -1,9 +1,15 @@
-import React from 'react';
-import { StyleSheet, Text, TextInput, View, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TextInput, View, Platform, TouchableOpacity } from 'react-native';
 import NotificationSVG from '../../../assets/images/svgs/Notification';
 import FilterSVG from '../../../assets/images/svgs/FilterSVG';
+import { useFonts } from 'expo-font';
 
-export default function Navbar() {
+export default function Navbar({ onPress, filterShow }) {
+
+  const [fontsLoaded] = useFonts({
+    'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
+  });
+
   return (
     <View style={styles.safeArea}>
       <View style={styles.navbar}>
@@ -16,8 +22,12 @@ export default function Navbar() {
               </View>
             </View>
             <View style={styles.navbar_flex_row}>
-              <TextInput style={styles.input} placeholder="Поиск" />
-              <FilterSVG/>
+              <TextInput placeholderTextColor={"gray"} style={[styles.input, filterShow ? {} : {width: "100%"}]} placeholder="Поиск" />
+              { filterShow ? (
+                <TouchableOpacity onPress={() => onPress()}>
+                  <FilterSVG/>
+                </TouchableOpacity>
+              ) : (null) }
             </View>
           </View>
         </View>
@@ -59,7 +69,8 @@ const styles = StyleSheet.create({
   navbar_title: {
     fontSize: 24,
     fontWeight: "600",
-    color: "#ffffff"
+    color: "#ffffff",
+    fontFamily: "Rubik-500"
   },
   notification_block: {
     width: 25,

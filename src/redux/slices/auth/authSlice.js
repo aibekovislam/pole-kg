@@ -17,7 +17,7 @@ const authSlice = createSlice({
   },
 });
 
-export const signIn = createAsyncThunk('auth/loginUser', async (data) => {
+export const signIn = createAsyncThunk('auth/loginUser', async (data = []) => {
     try {
         const { data: tokens } = await axios.post(`${API_URL}/users/jwt/create/`, data);
         storeData("tokens", JSON.stringify({ access: tokens.access, refresh: tokens.refresh }));
@@ -36,7 +36,7 @@ export const signIn = createAsyncThunk('auth/loginUser', async (data) => {
     }
 })
 
-export const signUp = createAsyncThunk('auth/registerUser', async (data) => {
+export const signUp = createAsyncThunk('auth/registerUser', async (data = []) => {
     try {
         const { data: tokens } = await axios.post(`${API_URL}/users/`, data);
         console.log(tokens)

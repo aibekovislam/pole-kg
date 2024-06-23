@@ -5,7 +5,7 @@ import SizeSVG from '../../../assets/images/svgs/SizeSVG';
 import MapSVG from '../../../assets/images/svgs/MapSVG';
 import { API_URL } from '../../utils/consts';
 
-export default function Card({ field, onPress }) {
+export default function Card({ field, onPress, price_and_time }) {
     const price = parseInt(field.price);
     return (
         <View style={styles.card}>

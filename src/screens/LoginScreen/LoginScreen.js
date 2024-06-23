@@ -8,6 +8,7 @@ import TelegramIcon from '../../../assets/images/svgs/TelegramSVG';
 import CheckPIN from '../../components/CheckPIN/CheckPIN';
 import { openTelegramBot } from '../../helpers/linkTelegram';
 import { storeData } from '../../helpers/storeHelper';
+import { useFonts } from 'expo-font';
 
 const LoginScreen = ({ navigation }) => {
   const nameInputRef = useRef(null);
@@ -16,6 +17,13 @@ const LoginScreen = ({ navigation }) => {
   const [checkPIN, setCheckPIN] = React.useState(false);
   const [pinTyped, setPinTyped] = React.useState(false);
   const [token, setToken] = React.useState(null);
+
+  const [ fontsLoaded ] = useFonts({
+    'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
+    'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
+    'Rubik-600': require("../../../assets/fonts/Rubik-SemiBold.ttf"),
+    'Rubik-700': require("../../../assets/fonts/Rubik-Bold.ttf")
+  })
 
   const handleCheckPIN = () => {
     setCheckPIN(true);
@@ -47,6 +55,10 @@ const LoginScreen = ({ navigation }) => {
     };
   }, []);
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={{ flex: 1 }}>
@@ -75,6 +87,7 @@ const LoginScreen = ({ navigation }) => {
                       ref={nameInputRef}
                       style={styles.input}
                       placeholder="Введите свое имя"
+                      placeholderTextColor={"gray"}
                     />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.input_block} onPress={() => phoneInputRef.current.focus()}>
@@ -86,6 +99,7 @@ const LoginScreen = ({ navigation }) => {
                       value={number}
                       placeholder="Введите свой номер"
                       keyboardType="numeric"
+                      placeholderTextColor={"gray"}
                     />
                   </TouchableOpacity>
                 </View>
@@ -129,9 +143,11 @@ const styles = StyleSheet.create({
   },
   switchText: {
     fontSize: 18,
+    fontFamily: "Rubik-500"
   },
   switchText_main: {
     fontWeight: '700',
+    fontFamily: "Rubik-700"
   },
   inputs: {
     padding: 20,
