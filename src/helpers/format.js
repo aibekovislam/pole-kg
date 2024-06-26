@@ -1,9 +1,14 @@
-export const formatSlot = (start_time, end_time) => {
-    const startTime = new Date(start_time);
-    const endTime = new Date(end_time);
-    const options = { hour: '2-digit', minute: '2-digit', hour12: false };
+import { format, parseISO } from "date-fns";
+import { ru } from "date-fns/locale";
 
-    return `с ${startTime.toLocaleTimeString([], options)} до ${endTime.toLocaleTimeString([], options)}`
+export const formatSlot = (start_time, end_time) => {
+    const startTime = parseISO(start_time);
+    const endTime = parseISO(end_time);
+
+    const formattedStartTime = format(startTime, 'HH:mm', { locale: ru });
+    const formattedEndTime = format(endTime, 'HH:mm', { locale: ru });
+
+    return `с ${formattedStartTime} до ${formattedEndTime}`;
 }
 
 export const formatSlotStart = (start_time) => {

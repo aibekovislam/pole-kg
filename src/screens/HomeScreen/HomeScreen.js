@@ -7,12 +7,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchFields } from '../../redux/slices/fields/fieldSlice';
 import ListOrMap from '../../components/ListOrMap/ListOrMap';
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen({ navigation, route }) {
+  const { isFiltered } = route.params || false
   const dispatch = useDispatch();
   const fields = useSelector(state => state.fields.fields);
 
   useEffect(() => {
-    dispatch(fetchFields())
+    if(!isFiltered) {
+      dispatch(fetchFields())
+    }
   }, [dispatch]);
 
   const handlePress = (id) => {
@@ -22,7 +25,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={{ flex: 1, position: "relative", paddingBottom: 100 }}>
       <ScrollView>
-        <Navbar onPress={() => navigation.navigate('Filter')} filterShow={true} />
+        <Navbar onPress={() => navigation.navigate('Filter', { fields })} filterShow={true} />
         <ListOrMap />
         <View style={styles.card_list}>
           {fields.map((field, index) => (

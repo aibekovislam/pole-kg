@@ -6,11 +6,13 @@ import RatingSVG from '../../../assets/images/svgs/Rating';
 import RatingNoSVG from '../../../assets/images/svgs/RatingNo';
 import SaveSVG from '../../../assets/images/svgs/SaveSVG';
 import SizeSVG from '../../../assets/images/svgs/SizeSVG';
-import ScheduleCarousel from '../Carousel/ScheduleCarousel';
 import { useFonts } from 'expo-font';
 import SaveFilledSVG from '../../../assets/images/svgs/SaveFilled';
+import { saveToFavorite } from '../../redux/slices/fields/fieldSlice';
+import { useDispatch } from 'react-redux';
 
 export default function MainCard({ field = {}, onPress = () => {}, isFavorite = false }) {
+    const dispatch = useDispatch();
 
     const [fontsLoaded] = useFonts({
         'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
@@ -42,10 +44,14 @@ export default function MainCard({ field = {}, onPress = () => {}, isFavorite = 
                         <RatingSVG/>
                         <RatingNoSVG/>
                     </View>
-                    <TouchableOpacity onPress={() => onPress(field.id)} style={styles.title_save}>
-                        <Text style={styles.title}>{ field.name }</Text>
-                        { isFavorite ? (<SaveFilledSVG />) : (<SaveSVG/>) }
-                    </TouchableOpacity>
+                    <View style={styles.title_save}>
+                        <TouchableOpacity onPress={() => onPress(field.id)}>
+                            <Text style={styles.title}>{ field.name }</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => dispatch(saveToFavorite(field?.id))}>
+                            { isFavorite ? (<SaveFilledSVG />) : (<SaveSVG/>) }
+                        </TouchableOpacity>
+                    </View>
                     <View style={styles.price_and_size}>
                         <Text style={styles.price_title}>{ parseInt(field.price) } час</Text>
                         <View style={styles.size_block}>

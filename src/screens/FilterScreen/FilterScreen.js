@@ -1,33 +1,90 @@
-import React, { useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View, Platform, Animated, TextInput, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Switch } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View, Platform, Animated, TouchableOpacity, Switch } from 'react-native';
 import Navbar from "../../components/Header/Navbar";
 import BottomNavbar from "../../components/bottomNavbar/BottomNavbar";
 import Button from '../../components/Button/Button';
 import { GestureHandlerRootView, PanGestureHandler, State } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
-import TimePickerComponent from '../../components/DateTimePicker/TimePickerComponent';
-import MapSVG from '../../../assets/images/svgs/MapSVG';
-import { formatSlot } from '../../helpers/format';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchFields, fetchFilterFields } from '../../redux/slices/fields/fieldSlice';
 
 export default function FilterScreen({ navigation }) {
+  const dispatch = useDispatch();
+  const fields = useSelector((state => state.fields.fieldsForFilter))
+
+  useEffect(() => {
+    dispatch(fetchFilterFields())
+  }, [dispatch])
+
+  const formatTime = (date) => {
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  };
+
   const translateX = useRef(new Animated.Value(0)).current;
-  const [reviewText, setReviewText] = useState('');
-  const [ choosed_slot, set_choosed_slot ] = useState(null);
+  const [choosed_slot, set_choosed_slot] = useState(null);
   const [isEnabled, setIsEnabled] = useState(true);
+  const [showFromPicker, setShowFromPicker] = useState(false);
+  const [showToPicker, setShowToPicker] = useState(false);
+  const [fromTime, setFromTime] = useState(new Date());
+  const [toTime, setToTime] = useState(new Date());
+  const [fromTimeString, setFromTimeString] = useState(formatTime(new Date()));
+  const [toTimeString, setToTimeString] = useState(formatTime(new Date()));
+
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
   const handle_choose_slot = (slot) => {
     if (choosed_slot === slot) {
-        set_choosed_slot(null);
+      set_choosed_slot(undefined);
     } else {
-        set_choosed_slot(slot);
-        console.log(choosed_slot)
+      set_choosed_slot(slot);
     }
-}; 
+  };
+
+  const handleClick = () => {
+    dispatch(fetchFields({
+      length: choosed_slot ? choosed_slot.length : undefined,
+      width: choosed_slot ? choosed_slot.width : undefined,
+      fromTime: fromTimeString,
+      toTime: toTimeString
+    }))
+    navigation.navigate('Home', { isFiltered: true })
+  }
+
+  const showFromTimePicker = () => {
+    setShowFromPicker(true);
+  };
+
+  const hideFromTimePicker = () => {
+    setShowFromPicker(false);
+  };
+
+  const handleFromTimeConfirm = (date) => {
+    const formattedTime = formatTime(date);
+    setFromTime(date);
+    setFromTimeString(formattedTime);
+    hideFromTimePicker();
+  };  
+
+  const showToTimePicker = () => {
+    setShowToPicker(true);
+  };
+
+  const hideToTimePicker = () => {
+    setShowToPicker(false);
+  };
+
+  const handleToTimeConfirm = (date) => {
+    const formattedTime = formatTime(date);
+    setToTime(date);
+    setToTimeString(formattedTime);
+    hideToTimePicker();
+  };  
 
   const [fontsLoaded] = useFonts({
     'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
     'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
+    'Rubik-700': require("../../../assets/fonts/Rubik-Bold.ttf")
   });
 
   if (!fontsLoaded) {
@@ -43,122 +100,98 @@ export default function FilterScreen({ navigation }) {
   const onGestureEvent = Animated.event(
     [{ nativeEvent: { translationX: translateX } }],
     { useNativeDriver: true }
-  );  
-
-  const data = {
-    "availability": [
-        {
-          "start_time": "2024-06-23T09:00:00Z",
-          "end_time": "2024-06-23T10:00:00Z",
-          "available": true
-        },
-        {
-          "start_time": "2024-06-23T10:00:00Z",
-          "end_time": "2024-06-23T11:00:00Z",
-          "available": true
-        },
-        {
-          "start_time": "2024-06-23T11:00:00Z",
-          "end_time": "2024-06-23T12:00:00Z",
-          "available": true
-        },
-        {
-          "start_time": "2024-06-23T12:00:00Z",
-          "end_time": "2024-06-23T13:00:00Z",
-          "available": true
-        },
-        {
-          "start_time": "2024-06-23T13:00:00Z",
-          "end_time": "2024-06-23T14:00:00Z",
-          "available": true
-        },
-        {
-          "start_time": "2024-06-23T14:00:00Z",
-          "end_time": "2024-06-23T15:00:00Z",
-          "available": true
-        },
-        {
-          "start_time": "2024-06-23T15:00:00Z",
-          "end_time": "2024-06-23T16:00:00Z",
-          "available": true
-        },
-        {
-          "start_time": "2024-06-23T16:00:00Z",
-          "end_time": "2024-06-23T17:00:00Z",
-          "available": true
-        }
-    ]
-  }
+  );
 
   const content = (
-    <View style={{ height: "100%" }}>
+    <View style={{ position: "relative", height: "80%" }}>
       <ScrollView>
         <Navbar onPress={() => navigation.navigate('Home')} filterShow={true} />
         <Text style={{ textAlign: "left", fontSize: 20, marginTop: 10, paddingHorizontal: 15, fontFamily: "Rubik-400" }}>Фильтры</Text>
-        <View style={{paddingHorizontal: 15}}>
-            <TimePickerComponent  />
-            <View style={{ marginTop: 10 }}>
-                <Text style={{ fontSize: 14, fontFamily: "Rubik-400" }}>Адрес</Text>
-                <View style={styles.review_input}>
-                    <View style={styles.container_review}>
-                        <View style={styles.leftSection}>
-                            <MapSVG />
-                            <TextInput
-                                style={styles.input_review}
-                                onChangeText={setReviewText}
-                                value={reviewText}
-                                placeholder="Киевская 59, Школа им.А.Канимаетова"
-                                multiline
-                            />
-                        </View>
-                    </View>
-                </View>  
+        <View style={{ paddingHorizontal: 15 }}>
+          <View style={[styles.timePickerRow, { marginTop: 15 }]}>
+            <TouchableOpacity style={[styles.timeButton]} onPress={showFromTimePicker}>
+              <Text style={{ fontSize: 12, fontWeight: "400", fontFamily: "Rubik-400", color: "#828282" }}>Время начала</Text>
+              <Text style={styles.timeButton_text}>{`с ${fromTimeString}`}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.timeButton]} onPress={showToTimePicker}>
+              <Text style={{ fontSize: 12, fontWeight: "400", fontFamily: "Rubik-400", color: "#828282" }}>Время конца</Text>
+              <Text style={styles.timeButton_text}>{`до ${toTimeString}`}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <DateTimePickerModal
+            isVisible={showFromPicker}
+            mode="time"
+            display="spinner"
+            locale="ru"
+            is24Hour={true}
+            onConfirm={handleFromTimeConfirm}
+            onCancel={hideFromTimePicker}
+            buttonTextColorIOS="#237133"
+            isDarkModeEnabled={false}
+            textColor='#237133'
+            minuteInterval={30}
+          />
+          <DateTimePickerModal
+            isVisible={showToPicker}
+            mode="time"
+            display="spinner"
+            locale="ru"
+            is24Hour={true}
+            onConfirm={handleToTimeConfirm}
+            onCancel={hideToTimePicker}
+            buttonTextColorIOS="#237133"
+            isDarkModeEnabled={false}
+            textColor='#237133'
+            minuteInterval={30}
+          />
+          <View style={{ marginTop: 20 }}>
+            <Text>Размеры поля</Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: 5, rowGap: 6, marginTop: 15 }}>
+              {
+                fields.map((field, index) => (
+                  <TouchableOpacity
+                    onPress={() => handle_choose_slot(field)}
+                    style={[choosed_slot === field ? styles.slot : styles.not_choosed_slot]}
+                    key={index}
+                  >
+                    <Text style={[choosed_slot === field ? styles.slot_text : styles.not_choosed_slot_text]}>
+                      {field.length + 'x' + field.width}
+                    </Text>
+                  </TouchableOpacity>
+                ))                
+              }
             </View>
-            <View style={{ marginTop: 20 }}>
-                <Text>Размеры поля</Text>
-                <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: 5, rowGap: 6, marginTop: 10 }}>
-                    { data?.availability.map((free_slot, index) => (
-                        <TouchableOpacity onPress={() => handle_choose_slot(free_slot)} style={[ choosed_slot === free_slot ? styles.slot : styles.not_choosed_slot ]} key={index}>
-                            <Text style={[ choosed_slot === free_slot ? styles.slot_text : styles.not_choosed_slot_text ]}>{ formatSlot(free_slot.start_time, free_slot.end_time) }</Text>
-                        </TouchableOpacity>
-                    )) }
-                 </View>
+          </View>
+          <View style={{ marginTop: 20 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+              <Text style={{ fontSize: 14, fontFamily: "Rubik-400" }}>Показать только <Text style={{ color: "#2F80ED" }}>свободные поля</Text></Text>
+              <Switch
+                trackColor={{ false: '#767577', true: '#237133' }}
+                thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={toggleSwitch}
+                value={isEnabled}
+              />
             </View>
-            <View style={{ marginTop: 20 }}>
-                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                     <Text>Показать только свободные поля</Text>
-                     <Switch
-                        trackColor={{ false: "#767577", true: "#69B479" }}
-                        thumbColor={isEnabled ? "#237133" : "#f4f3f4"}
-                        ios_backgroundColor="#3e3e3e"
-                        onValueChange={toggleSwitch}
-                        value={isEnabled}
-                    />
-                </View>
-            </View>
+          </View>
         </View>
       </ScrollView>
       <View style={styles.bottomNavbar_block}>
-        <Button title={"Применить"} onPress={() => navigation.navigate('Home')} />
+        <Button title={"Применить"} onPress={() => handleClick()} />
         <BottomNavbar navigation={navigation} item={"home"} />
       </View>
     </View>
   );
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <GestureHandlerRootView style={{ flex: 1, position: "relative", paddingBottom: 160 }}>
-        {Platform.OS === 'ios' ? (
-            <PanGestureHandler onGestureEvent={onGestureEvent} onHandlerStateChange={onHandlerStateChange}>
-            <Animated.View style={{ transform: [{ translateX }] }}>
-                {content}
-            </Animated.View>
-            </PanGestureHandler>
-        ) : (
-            content
-        )}
-        </GestureHandlerRootView>
-    </TouchableWithoutFeedback>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PanGestureHandler onHandlerStateChange={onHandlerStateChange} onGestureEvent={onGestureEvent}>
+        <Animated.View style={{ flex: 1 }}>
+          {content}
+        </Animated.View>
+      </PanGestureHandler>
+    </GestureHandlerRootView>
   );
 }
 
@@ -217,22 +250,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 15
   },
-  container_review: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    padding: 10,
-    paddingHorizontal: 20,
-    marginTop: 5,
-    height: 60,
-    width: "100%"
-  },
-  leftSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   text: {
     marginLeft: 10,
     fontSize: 16,
@@ -253,9 +270,6 @@ const styles = StyleSheet.create({
     top: '100%',
     paddingHorizontal: 15,
     rowGap: 10
-  },
-  input_review: {
-    paddingHorizontal: 10
   },
   slot: {
     alignSelf: "flex-start",
@@ -284,5 +298,31 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         borderWidth: 1,
         borderColor: "#237133"
+    },
+    label: {
+      fontSize: 16,
+      marginBottom: 10,
+      textAlign: 'left',
+      width: '100%',
+      marginTop: 10,
+    },
+    timePickerRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
+    },
+    timeButton: {
+      backgroundColor: '#ffffff',
+      borderRadius: 20,
+      width: '47%',
+      height: 50,
+      justifyContent: 'center',
+      paddingHorizontal: 15,
+      paddingVertical: 0
+    },
+    timeButton_text: {
+      fontSize: 15,
+      color: '#237133',
+      fontFamily: "Rubik-700"
     },
  });

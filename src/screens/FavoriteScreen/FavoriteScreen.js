@@ -1,24 +1,21 @@
 import React, { useEffect } from 'react'
 import { View, ScrollView, Text, StyleSheet, Image } from 'react-native'
 import Navbar from '../../components/Header/Navbar'
-import Card from '../../components/MainCard/Card'
-import MapSVG from '../../../assets/images/svgs/MapSVG'
-import SizeSVG from '../../../assets/images/svgs/SizeSVG'
-import MoneySVG from '../../../assets/images/svgs/Money'
-import BookingCard from '../../components/MainCard/BookingCard'
 import { useFonts } from 'expo-font'
 import Button from '../../components/Button/Button'
 import BottomNavbar from '../../components/bottomNavbar/BottomNavbar'
 import MainCard from '../../components/MainCard/MainCard'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchFields } from '../../redux/slices/fields/fieldSlice'
+import { fetchSavedFields } from '../../redux/slices/fields/fieldSlice'
 
 function FavoriteScreen({ navigation }) {
     const dispatch = useDispatch();
-    const fields = useSelector(state => state.fields.fields);
+    const savedFields = useSelector((state => state.fields.savedFields));
+
+    console.log(savedFields);
 
     useEffect(() => {
-        dispatch(fetchFields())
+        dispatch(fetchSavedFields())
     }, [dispatch]);
 
     const handlePress = (id) => {
@@ -34,7 +31,7 @@ function FavoriteScreen({ navigation }) {
     }
 
     return (
-        <View style={{ position: "relative" }}>
+        <View style={{ position: "relative", height: "100%" }}>
             <ScrollView>
                 <Navbar />
                 <View style={styles.container}>
@@ -42,13 +39,21 @@ function FavoriteScreen({ navigation }) {
                     <Text style={styles.booking_text}>Избранное</Text>
                 </View>
                 <View style={[styles.cards, { paddingBottom: 100 }]}>
-                    { fields.map((field, index) => (
+                    { savedFields.map((field, index) => (
                         <MainCard field={field} onPress={handlePress} key={index} isFavorite={true} />
                     )) }
+                    { savedFields.length === 0 ? (
+                      <View style={{ width: "100%", height: "100%", justifyContent: "center", alignItems: "center"}}>
+                        <Text style={{ fontFamily: "Rubik-500", fontSize: 18, textAlign: "center" }}>Пока пусто</Text>
+                      </View>
+                    ) : (null) }
                 </View>
                 </View>
             </ScrollView>
             <View style={styles.bottom_navbar}>
+                { savedFields.length === 0 ? (
+                  <Button title='Выбрать поле' onPress={() => navigation.navigate('Home', { isFiltered: false })} />
+                ) : (null) }
                 <BottomNavbar navigation={navigation} item={"favorite"} />
             </View>
         </View>

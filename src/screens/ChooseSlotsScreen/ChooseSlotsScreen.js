@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, Animated, ScrollView, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Animated, Platform, ScrollView, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 import Navbar from '../../components/Header/Navbar';
 import CalendarSVG from '../../../assets/images/svgs/CalendarSVG';
 import Slider from '@react-native-community/slider';
@@ -9,7 +9,6 @@ import BottomNavbar from '../../components/bottomNavbar/BottomNavbar';
 import { useDispatch, useSelector } from 'react-redux';
 import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
 import { fetchAvailable, fetchAvailableDay, fetchFieldByHour } from '../../redux/slices/fields/fieldSlice';
-import { formatSlot } from '../../helpers/format';
 
 const ChooseSlotsScreen = ({ route, navigation }) => {
     const { id } = route.params; 
@@ -53,10 +52,30 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
         fetchTomorrowSlots();
     }, [dispatch, id]);
 
+    useEffect(() => {
+        if (fields_available_day && !selectedDate) {
+          if (today_or_tomorrow === 'today') {
+            setTodaySlots(transformSlots(fields_available_day));
+          } else if (today_or_tomorrow === 'tomorrow') {
+            setTomorrowSlots(transformSlots(fields_available_day));
+          }
+        } else {
+          setSelectedDateSlots(transformSlots(fields_available_day));
+        }
+    }, [fields_available_day, today_or_tomorrow, selectedDate]);    
+
+    const handleChangeTodayOrTommorow = useCallback((item) => {
+        set_today_or_tomorrow(item);
+        setSelectedDate(null);
+        fetchTodaySlots();
+        fetchTomorrowSlots();
+      }, [fetchTodaySlots, fetchTomorrowSlots]);    
+
     const [fontsLoaded] = useFonts({
         'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
         'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
     });
+
 
     if (!fontsLoaded) {
         return null;
@@ -71,6 +90,9 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
     const [isCalendarVisible, setCalendarVisibility] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
     const [ access_to_pay, set_access_to_pay ] = useState(false);
+    const [todaySlots, setTodaySlots] = useState([]);
+    const [tomorrowSlots, setTomorrowSlots] = useState([]);
+    const [selectedDateSlots, setSelectedDateSlots] = useState([]);
 
     const MAX_HOURS = 12;
 
@@ -92,10 +114,23 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
         }
     };    
 
+    const transformSlots = useCallback((slots) => {
+        return slots.map(slot => {
+          const startTime = new Date(slot.start_time);
+          const endTime = new Date(slot.end_time);
+          const options = { hour: '2-digit', minute: '2-digit', hour12: false };
+    
+          return {
+            time: `с ${startTime.toLocaleTimeString([], options)} до ${endTime.toLocaleTimeString([], options)}`,
+            available: slot.available
+          };
+        });
+    }, []);    
+
     const handleSliderComplete = (value) => {
         const hours = Math.floor(value / 2);
-        dispatch(fetchFieldByHour({ id, hour: hours }))
-        console.log('value', hours)
+        const minutes = (value % 2) * 30;
+        dispatch(fetchFieldByHour({ id, hour: hours, minutes: minutes }))
         return value;
     };
 
@@ -111,6 +146,11 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
         setSelectedDate(date);
         set_today_or_tomorrow(null);
     }, []);
+
+    useEffect(() => {
+        console.log(selectedDate);
+        setSelectedDateSlots(transformSlots(fields_available_day));
+    }, [selectedDate]);
 
     const formatTime = (hours, minutes) => {
         const formatHours = (hours) => {
@@ -134,6 +174,11 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
         }
     };
 
+    const formatSelctedDate = useCallback((date) => {
+        const options = { day: 'numeric', month: 'long' };
+        return new Intl.DateTimeFormat('ru-RU', options).format(new Date(date));
+    }, []);    
+
     if (loading) {
         return (
           <View style={styles.loadingContainer}>
@@ -143,16 +188,16 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
     }
 
     return (
-        <View style={{ position: "relative" }}>
+        <View style={{ position: "relative", height: "100%" }}>
             <ScrollView>
                 <Navbar/>
                 <View style={styles.detail_info}>
                     <View style={styles.detail_date}>
                         <View style={styles.today_or_tomorrow}>
-                            <TouchableOpacity onPress={() => set_today_or_tomorrow('today')} style={[ today_or_tomorrow === 'today' ? styles.slot : styles.not_choosed_slot ]}>
+                            <TouchableOpacity onPress={() => handleChangeTodayOrTommorow('today')} style={[ today_or_tomorrow === 'today' ? styles.slot : styles.not_choosed_slot ]}>
                                 <Text style={[ today_or_tomorrow === 'today' ? styles.slot_text : styles.not_choosed_slot_text ]}>Сегодня</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => set_today_or_tomorrow('tomorrow')} style={[ today_or_tomorrow === 'tomorrow' ? styles.slot : styles.not_choosed_slot ]}>
+                            <TouchableOpacity onPress={() => handleChangeTodayOrTommorow('tomorrow')} style={[ today_or_tomorrow === 'tomorrow' ? styles.slot : styles.not_choosed_slot ]}>
                                 <Text style={[ today_or_tomorrow === 'tomorrow' ? styles.slot_text : styles.not_choosed_slot_text ]}>Завтра</Text>
                             </TouchableOpacity>
                         </View>
@@ -187,19 +232,35 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
                             </View>
                         </View>
                     </View>
-                    <View style={{ marginTop: 35, paddingBottom: 160 }}>
-                        <Text style={{fontFamily: "Rubik-400"}}>Свободные поля на сегодня</Text>
+                    <View style={{ marginTop: 35, paddingBottom: 200 }}>
+                        <Text style={{fontFamily: "Rubik-400"}}>Свободные поля на { selectedDate ? formatSelctedDate(selectedDate) : ( today_or_tomorrow === 'today' ? "сегодня" : "завтра" ) }</Text>
                         <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: 5, rowGap: 6, marginTop: 10 }}>
-                            { field?.availability.map((free_slot, index) => (
-                                <TouchableOpacity onPress={() => handle_choose_slot(free_slot)} style={[ choosed_slot === free_slot ? styles.slot : styles.not_choosed_slot ]} key={index}>
-                                    <Text style={[ choosed_slot === free_slot ? styles.slot_text : styles.not_choosed_slot_text ]}>{ formatSlot(free_slot.start_time, free_slot.end_time) }</Text>
-                                </TouchableOpacity>
-                            )) }
+                            { selectedDate ? (
+                                selectedDateSlots?.map((free_slot, index) => (
+                                    <TouchableOpacity onPress={() => handle_choose_slot(free_slot)} style={[ choosed_slot === free_slot ? styles.slot : styles.not_choosed_slot ]} key={index}>
+                                        <Text style={[ choosed_slot === free_slot ? styles.slot_text : styles.not_choosed_slot_text ]}>{ free_slot.time }</Text>
+                                    </TouchableOpacity>
+                                ))
+                            ) : (
+                                today_or_tomorrow === 'today' ? (
+                                    field?.availability.map((free_slot, index) => (
+                                        <TouchableOpacity onPress={() => handle_choose_slot(free_slot)} style={[ choosed_slot === free_slot ? styles.slot : styles.not_choosed_slot ]} key={index}>
+                                            <Text style={[ choosed_slot === free_slot ? styles.slot_text : styles.not_choosed_slot_text ]}>{ free_slot.nigga_pro_max }</Text>
+                                        </TouchableOpacity>
+                                    ))
+                                ) : (
+                                    tomorrowSlots?.map((free_slot, index) => (
+                                        <TouchableOpacity onPress={() => handle_choose_slot(free_slot)} style={[ choosed_slot === free_slot ? styles.slot : styles.not_choosed_slot ]} key={index}>
+                                            <Text style={[ choosed_slot === free_slot ? styles.slot_text : styles.not_choosed_slot_text ]}>{ free_slot.time }</Text>
+                                        </TouchableOpacity>
+                                    ))
+                                )
+                            )}
                         </View>
                     </View>
                 </View>
             </ScrollView>
-            <View style={styles.bottomNavbar_block}>
+            <View style={[styles.bottomNavbar_block, Platform.OS === 'ios' ? { bottom: 30 } : { bottom: '-5%' }]}>
                 <Button
                     pinTyped={access_to_pay}
                     title={"Перейти к оплате"}
@@ -281,10 +342,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "transparent",
         position: "absolute",
-        top: '80%',
-        bottom: 0,
         paddingHorizontal: 15,
-        rowGap: 10
+        rowGap: 10,
     },
     loadingContainer: {
         flex: 1,

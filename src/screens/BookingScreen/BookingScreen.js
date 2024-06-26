@@ -1,16 +1,11 @@
 import React from 'react'
 import { View, ScrollView, Text, StyleSheet, Image } from 'react-native'
 import Navbar from '../../components/Header/Navbar'
-import Card from '../../components/MainCard/Card'
-import MapSVG from '../../../assets/images/svgs/MapSVG'
-import SizeSVG from '../../../assets/images/svgs/SizeSVG'
-import MoneySVG from '../../../assets/images/svgs/Money'
 import BookingCard from '../../components/MainCard/BookingCard'
 import { useFonts } from 'expo-font'
 import BottomNavbar from '../../components/bottomNavbar/BottomNavbar'
 
 function BookingScreen({ navigation }) {
-
   const [fontsLoaded] = useFonts({
     'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
   });

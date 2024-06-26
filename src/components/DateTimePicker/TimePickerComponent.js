@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
-const TimePickerComponent = ({ payBlocked = false, backgroundColor = '#ffffff', onFromTimeChange, onToTimeChange }) => {
+const TimePickerComponent = ({ payBlocked = false, backgroundColor = '#ffffff', onFromTimeChange = () => {}, onToTimeChange = () => {} }) => {
   const formatTime = (date) => {
     return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
   };  
