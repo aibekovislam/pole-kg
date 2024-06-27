@@ -1,89 +1,132 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { useFonts } from 'expo-font';
 import { renderRating } from '../../helpers/renderRating';
-import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler';
 
-const ReviewCard = ({ data = {} }) => {
-  let formattedDate = formatDistanceToNow(new Date(data.created_at), { addSuffix: true, locale: ru });
-  formattedDate = formattedDate.replace('около ', '');
+export default function ReviewCard({ data = {} }) {
 
-  return (
-    <GestureHandlerRootView>
-      <View style={styles.review_card}>
-        <View style={styles.container}>
-          <View style={styles.user_info}>
-            <View style={styles.user}>
-              <Image
-                style={styles.user_img}
-                alt="image"
-                source={{ uri: 'https://assets-global.website-files.com/62d84e447b4f9e7263d31e94/6399a4d27711a5ad2c9bf5cd_ben-sweet-2LowviVHZ-E-unsplash-1.jpeg' }}
-              />
-              <View>
-                <Text style={styles.user_title}>{data.user.name}</Text>
-                <Text style={styles.user_review_date}>{formattedDate}</Text>
-              </View>
+    const [fontsLoaded] = useFonts({
+        'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
+        'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
+    });
+
+    return (
+        <View>
+            <View style={styles.card}>
+                <View style={styles.container}>
+                    <View style={styles.card_items}>
+                        <View style={styles.card_item}>
+                            <Image source={{ uri: `https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-1080x675.jpg` }} alt='pole' style={styles.card_image} />
+                        </View>
+                        <View style={styles.card_item}>
+                            <Text style={styles.name}>Нияз</Text>
+                            <View style={styles.card_slots}>
+                                <View style={styles.slot}><Text style={styles.slot_text_address}>{ data.comment }</Text></View>
+                            </View>
+                        </View>
+                    </View>
+                </View>
             </View>
-            <View style={styles.rating}>{renderRating(data.rating)}</View>
-          </View>
-          <ScrollView style={styles.text} contentContainerStyle={styles.scrollContainer}>
-            <Text style={styles.description}>{data.comment}</Text>
-          </ScrollView>
+            <View style={styles.card_bottom}>
+                <View style={styles.container}>
+                    <View style={styles.card_bottom_items}>
+                        <View style={styles.card_bottom_item}>
+                          {renderRating(data.rating)}
+                        </View>
+                        <View style={styles.card_bottom_item}>
+                            <Text style={styles.card_bottom_item_title}>{ `${data.rating}/5` }</Text>
+                        </View>
+                    </View>
+                </View>
+            </View>
         </View>
-      </View>
-    </GestureHandlerRootView>
-  );
-};
+    );
+}
 
 const styles = StyleSheet.create({
-  review_card: {
-    width: 280,
-    height: 'auto',
-    borderRadius: 20,
-    padding: 10,
-    backgroundColor: '#ffffff',
-    marginRight: 10,
-  },
-  user_img: {
-    width: 45,
-    height: 45,
-    resizeMode: 'cover',
-    borderRadius: 100,
-  },
-  user_info: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  rating: {
-    flexDirection: 'row',
-    columnGap: 1,
-    alignItems: 'center',
-  },
-  user: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    columnGap: 10,
-  },
-  text: {
-    marginTop: 10,
-    height: 120,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-  },
-  description: {
-    width: 240,
-    fontSize: 12,
-  },
-  user_title: {
-    fontSize: 14
-  },
-  user_review_date: {
-    fontSize: 12,
-    fontWeight: "300",
-    color: "#828282"
-  }
-});
-
-export default ReviewCard;
+    card: {
+        width: 370,
+        flexShrink: 1,
+        padding: 10,
+        borderRadius: 6,
+        backgroundColor: "#ffffff",
+        marginBottom: 2,
+    },
+    container: {
+        flex: 1,
+    },
+    card_items: {
+        flexDirection: "row",
+        columnGap: 10
+    },
+    card_image: {
+        width: 50,
+        height: 50,
+        resizeMode: 'cover',
+        borderRadius: 6
+    },
+    card_price: {
+        fontSize: 14,
+        fontWeight: "400",
+        marginBottom: 10
+    },
+    info_card: {
+        flexDirection: "row",
+        columnGap: 5,
+        alignItems: "center"
+    },
+    card_address: {
+        fontSize: 12,
+        color: "#777777",
+        marginBottom: 5
+    },
+    name: {
+        fontSize: 16,
+        fontWeight: "500",
+        color: "#237133",
+        // marginBottom: 5,
+        fontFamily: "Rubik-500"
+    },
+    card_slots: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        columnGap: 5,
+        rowGap: 5
+    },
+    slot: {
+        alignSelf: "flex-start",
+    },
+    slot_text: {
+        color: "#828282",
+        fontFamily: "Rubik-400"
+    },
+    slot_text_address: {
+        color: "#828282",
+        fontFamily: "Rubik-400",
+        width: 250
+    },
+    card_bottom: {
+        width: 370,
+        backgroundColor: "#ffffff",
+        borderRadius: 6
+    },
+    card_bottom_items: {
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        flexDirection :"row",
+        justifyContent: "space-between"
+    },
+    card_bottom_item: {
+        flexDirection: "row",
+        columnGap: 5,
+        alignItems: "center"
+    },
+    card_bottom_item_title: {
+        color: "#828282",
+        fontFamily: "Rubik-400"
+    },
+    card_bottom_item_title_green: {
+        color: "#237133",
+        fontFamily: "Rubik-400"
+    }
+})

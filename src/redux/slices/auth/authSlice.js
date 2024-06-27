@@ -36,11 +36,32 @@ export const signIn = createAsyncThunk('auth/loginUser', async (data = []) => {
     }
 })
 
-export const signUp = createAsyncThunk('auth/registerUser', async (data = []) => {
+export const signUp = createAsyncThunk('auth/registerUser', async ({ name, number }, { rejectWithValue }) => {
     try {
-        const { data: tokens } = await axios.post(`${API_URL}/users/`, data);
-        console.log(tokens)
-        storeData("tokens", JSON.stringify({ access: tokens.access, refresh: tokens.refresh }));
+        const data = {
+            phone_number: number,
+            name: name
+        }
+        const response = await axios.post(`${API_URL}/users/register/`, data);
+        return response.data;
+    } catch (error) {
+        console.log(error)
+        if (error.response && error.response.data) {
+            return rejectWithValue(error.response.data);
+        } else {
+            return rejectWithValue(error.message);
+        }
+    }
+});
+
+export const verifyUser = createAsyncThunk('auth/verify', async({ pin, number }, { dispatch }) => {
+    try {
+        const postData = {
+            phone_number: number,
+            code: pin
+        }
+        const { data: tokens } = await axios.post(`${API_URL}/users/pin/verify/`, postData);
+        storeData("token", JSON.stringify({ access: tokens.access, refresh: tokens.refresh }));
         const response = await axios.get(`${API_URL}/users/me/`, {
             headers: {
                 Authorization: `Bearer ${tokens.access}`
@@ -50,7 +71,6 @@ export const signUp = createAsyncThunk('auth/registerUser', async (data = []) =>
         storeData("userInfo", JSON.stringify({
             ...response.data,
         }));
-        response.data
     } catch (error) {
         console.log(error);
     }

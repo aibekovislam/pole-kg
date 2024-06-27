@@ -263,7 +263,6 @@ export const styles = StyleSheet.create({
         borderRadius: 10
     },
     reviews: {
-        height: 245,
         marginTop: 10,
         rowGap: 10,
     },

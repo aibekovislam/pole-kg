@@ -1,9 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import SaveSVG from '../../../assets/images/svgs/SaveSVG';
-import SizeSVG from '../../../assets/images/svgs/SizeSVG';
-import MapSVG from '../../../assets/images/svgs/MapSVG';
-import { API_URL } from '../../utils/consts';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useFonts } from 'expo-font';
 
 export default function BookingCard() {

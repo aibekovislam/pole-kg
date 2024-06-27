@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Header from '../../components/Header/Header';
 import Button from '../../components/Button/Button';
@@ -8,13 +8,18 @@ import TelegramIcon from '../../../assets/images/svgs/TelegramSVG';
 import CheckPIN from '../../components/CheckPIN/CheckPIN';
 import { openTelegramBot } from '../../helpers/linkTelegram';
 import { useFonts } from 'expo-font';
+import { useDispatch } from 'react-redux';
+import { signUp } from '../../redux/slices/auth/authSlice';
 
 const RegisterScreen = ({ navigation }) => {
   const nameInputRef = useRef(null);
   const phoneInputRef = useRef(null);
-  const [number, onChangeNumber] = React.useState('');
-  const [checkPIN, setCheckPIN] = React.useState(false);
-  const [pinTyped, setPinTyped] = React.useState(false);
+  const [number, onChangeNumber] = useState('');
+  const [name, setName] = useState('');
+  const [checkPIN, setCheckPIN] = useState(false);
+  const [pinTyped, setPinTyped] = useState(false);
+  const [error, setError] = useState('');
+  const dispatch = useDispatch();
 
   const [fontsLoaded] = useFonts({
     'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
@@ -27,8 +32,23 @@ const RegisterScreen = ({ navigation }) => {
     return null;
   }
 
-  const handleCheckPIN = () => {
-    setCheckPIN(true);
+  const handleRegisterSubmit = async () => {
+    try {
+      const resultAction = await dispatch(signUp({ name, number }));
+      if (signUp.fulfilled.match(resultAction)) {
+        console.log('User registered successfully:', resultAction.payload);
+      } else {
+        if (resultAction.payload && resultAction.payload.phone_number) {
+          setError(resultAction.payload.phone_number[0]);
+        } else {
+          setError('Произошла ошибка при регистрации');
+        }
+      }
+      setCheckPIN(true);
+    } catch (err) {
+      console.log(err)
+      setError('Этот номер телефона уже зарегистрирован');
+    }
   }
 
   return (
@@ -43,7 +63,7 @@ const RegisterScreen = ({ navigation }) => {
             </View>
             {checkPIN ? (
               <>
-                <CheckPIN setPinTyped={setPinTyped} />
+                <CheckPIN setPinTyped={setPinTyped} phoneNumber={number} />
                 <View style={styles.flexGrow} />
                 <View style={styles.btn_block}>
                   <Button pinTyped={pinTyped} onPress={() => navigation.navigate('Home')} title={'Продолжить'} />
@@ -60,6 +80,8 @@ const RegisterScreen = ({ navigation }) => {
                       style={styles.input}
                       placeholder="Введите свое имя"
                       placeholderTextColor={"gray"}
+                      value={name}
+                      onChangeText={setName}
                     />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.input_block} onPress={() => phoneInputRef.current.focus()}>
@@ -75,6 +97,9 @@ const RegisterScreen = ({ navigation }) => {
                     />
                   </TouchableOpacity>
                 </View>
+                {error ? (
+                  <Text style={styles.errorText}>{error}</Text>
+                ) : null}
                 <View style={styles.flexGrow} />
                 <View style={styles.btn_block}>
                   <View style={styles.flex_telegram}>
@@ -83,7 +108,7 @@ const RegisterScreen = ({ navigation }) => {
                       <TelegramIcon />
                     </TouchableOpacity>
                   </View>
-                  <Button title="Продолжить" onPress={handleCheckPIN} />
+                  <Button title="Продолжить" onPress={handleRegisterSubmit} />
                 </View>
               </>
             )}
@@ -163,6 +188,11 @@ const styles = StyleSheet.create({
   },
   flex_telegram_text: {
     fontFamily: "Rubik-400"
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginVertical: 10,
   }
 });
 

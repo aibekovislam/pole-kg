@@ -153,14 +153,9 @@ export default function DetailScreen({ route, navigation }) {
           </View>
           <View style={styles.reviews}>
             <Text style={[styles.review_title, { fontFamily: "Rubik-400" }]}>Отзывы</Text>
-            <FlatList
-              data={field?.reviews}
-              renderItem={renderItem}
-              keyExtractor={(item, index) => index.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.carouselContainer}
-            />
+            { field?.reviews.map((item, index) => (
+              <ReviewCard data={item} key={index} />
+            )) }
           </View>
           { token ? (
             <View style={styles.review_input}>

@@ -1,8 +1,11 @@
 import { useFonts } from 'expo-font';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { verifyUser } from '../../redux/slices/auth/authSlice';
+import { useDispatch } from 'react-redux';
 
-const CheckPIN = ({ setPinTyped }) => {
+const CheckPIN = ({ setPinTyped, phoneNumber }) => {
+    const dispatch = useDispatch();
     const input1Ref = useRef(null);
     const input2Ref = useRef(null);
     const input3Ref = useRef(null);
@@ -10,17 +13,22 @@ const CheckPIN = ({ setPinTyped }) => {
 
     const [errorPIN, setErrorPIN] = useState(false);
     const [pinValues, setPinValues] = useState(['', '', '', '']);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [ fontsLoaded ] = useFonts({
+    const [fontsLoaded] = useFonts({
         'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
         'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
         'Rubik-600': require("../../../assets/fonts/Rubik-SemiBold.ttf"),
         'Rubik-700': require("../../../assets/fonts/Rubik-Bold.ttf")
-    })
+    });
 
     useEffect(() => {
         const allFieldsFilled = pinValues.every(value => value.length === 1);
         setPinTyped(allFieldsFilled);
+
+        if (allFieldsFilled && !isSubmitting) {
+            dispatch(verifyUser({ pin: pinValues.join(''), number: phoneNumber }));
+        }
     }, [pinValues]);
 
     const handleTextChange = (text, index, nextRef) => {
@@ -92,17 +100,17 @@ const CheckPIN = ({ setPinTyped }) => {
                         value={pinValues[3]}
                     />
                 </View>
-                { errorPIN ? (
+                {errorPIN ? (
                     <View style={styles.checkPIN_error}>
                         <Text style={styles.error_pin}>Неверный код</Text>
                         <Text style={styles.new_pin}>Запросить новый код</Text>
                     </View>
-                ) : (null) }
+                ) : (null)}
                 <Text style={styles.checkPIN_info}>Код подтверждения придет к вам в номер телефона в виде сообщения</Text>
             </View>
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     checkPIN: {
