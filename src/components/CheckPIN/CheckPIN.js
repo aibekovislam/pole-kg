@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { verifyUser } from '../../redux/slices/auth/authSlice';
 import { useDispatch } from 'react-redux';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const CheckPIN = ({ setPinTyped, phoneNumber }) => {
     const dispatch = useDispatch();
@@ -24,13 +25,36 @@ const CheckPIN = ({ setPinTyped, phoneNumber }) => {
 
     useEffect(() => {
         const allFieldsFilled = pinValues.every(value => value.length === 1);
-        setPinTyped(allFieldsFilled);
-
+    
         if (allFieldsFilled && !isSubmitting) {
-            dispatch(verifyUser({ pin: pinValues.join(''), number: phoneNumber }));
+            const verify = async () => {
+                try {
+                    const resultAction = await dispatch(verifyUser({ pin: pinValues.join(''), number: phoneNumber }));
+                    if (verifyUser.fulfilled.match(resultAction)) {
+                        console.log('User verified successfully:', resultAction.payload);
+                    } else {
+                        if (resultAction.payload && resultAction.payload.phone_number) {
+                            setErrorPIN(true);
+                        } else if (resultAction.payload && resultAction.payload.non_field_errors) {
+                            setErrorPIN(true);
+                        } else {
+                            setPinTyped(false);
+                            setErrorPIN(true);
+                        }
+                    }
+                    if (!errorPIN) {
+                        setPinTyped(allFieldsFilled);
+                    }
+                } catch (error) {
+                    console.error('Error verifying user:', error);
+                    setError('Произошла ошибка при проверке пользователя');
+                }
+            };
+    
+            verify();
         }
     }, [pinValues]);
-
+    
     const handleTextChange = (text, index, nextRef) => {
         const newPinValues = [...pinValues];
         newPinValues[index] = text;
@@ -103,7 +127,13 @@ const CheckPIN = ({ setPinTyped, phoneNumber }) => {
                 {errorPIN ? (
                     <View style={styles.checkPIN_error}>
                         <Text style={styles.error_pin}>Неверный код</Text>
-                        <Text style={styles.new_pin}>Запросить новый код</Text>
+                        <TouchableOpacity onPress={() => {
+                            dispatch(verifyUser({ pin: pinValues.join(''), number: phoneNumber }))
+                            setPinValues(['', '', '', '']);
+                            setErrorPIN(false)
+                        }}>
+                            <Text style={styles.new_pin}>Запросить новый код</Text>
+                        </TouchableOpacity>
                     </View>
                 ) : (null)}
                 <Text style={styles.checkPIN_info}>Код подтверждения придет к вам в номер телефона в виде сообщения</Text>

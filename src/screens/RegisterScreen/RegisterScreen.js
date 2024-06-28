@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Linking } from 'react-native';
 import Header from '../../components/Header/Header';
 import Button from '../../components/Button/Button';
 import PersonalSVG from '../../../assets/images/svgs/PersonalSVG.JSX';
@@ -8,7 +8,7 @@ import TelegramIcon from '../../../assets/images/svgs/TelegramSVG';
 import CheckPIN from '../../components/CheckPIN/CheckPIN';
 import { openTelegramBot } from '../../helpers/linkTelegram';
 import { useFonts } from 'expo-font';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { signUp } from '../../redux/slices/auth/authSlice';
 
 const RegisterScreen = ({ navigation }) => {
@@ -19,7 +19,9 @@ const RegisterScreen = ({ navigation }) => {
   const [checkPIN, setCheckPIN] = useState(false);
   const [pinTyped, setPinTyped] = useState(false);
   const [error, setError] = useState('');
+  const [token, setToken] = React.useState(null);
   const dispatch = useDispatch();
+  const user = useSelector((state => state.auth.user))
 
   const [fontsLoaded] = useFonts({
     'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
@@ -27,6 +29,38 @@ const RegisterScreen = ({ navigation }) => {
     'Rubik-600': require("../../../assets/fonts/Rubik-SemiBold.ttf"),
     'Rubik-700': require("../../../assets/fonts/Rubik-Bold.ttf")
   });
+
+  const handleOpenURL = (event) => {
+    const url = event.url;
+    const token = url.split('token=')[1];
+    if (token) {
+      setToken(token);
+      storeData('token', JSON.stringify(token));
+      navigation.navigate('Home');
+    }
+  };
+
+  useEffect(() => {
+    const handleOpenURLWrapper = ({ url }) => handleOpenURL({ url });
+
+    Linking.addEventListener('url', handleOpenURLWrapper);
+
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        handleOpenURL({ url });
+      }
+    });
+
+    return () => {
+      Linking.removeAllListeners('url', handleOpenURLWrapper);
+    };
+  }, []);
+  
+  useEffect(() => {
+    if(user && fontsLoaded) {
+      navigation.navigate('Home')
+    }
+  }, [user])
 
   if (!fontsLoaded) {
     return null;
@@ -104,7 +138,7 @@ const RegisterScreen = ({ navigation }) => {
                 <View style={styles.btn_block}>
                   <View style={styles.flex_telegram}>
                     <Text style={styles.flex_telegram_text}>Регистрация через</Text>
-                    <TouchableOpacity onPress={() => openTelegramBot()}>
+                    <TouchableOpacity onPress={openTelegramBot}>
                       <TelegramIcon />
                     </TouchableOpacity>
                   </View>

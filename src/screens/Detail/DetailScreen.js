@@ -21,6 +21,7 @@ import { renderRating } from '../../helpers/renderRating';
 import { getData } from '../../helpers/storeHelper';
 import { useFonts } from 'expo-font';
 import RatingSVG from '../../../assets/images/svgs/Rating';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function DetailScreen({ route, navigation }) {
   const { id } = route.params;

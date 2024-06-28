@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Navbar from "../../components/Header/Navbar";
 import MainCard from "../../components/MainCard/MainCard";
 import BottomNavbar from "../../components/bottomNavbar/BottomNavbar";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFields } from '../../redux/slices/fields/fieldSlice';
 import ListOrMap from '../../components/ListOrMap/ListOrMap';
+import HomeMap from '../../components/map/HomeMap';
 
 export default function HomeScreen({ navigation, route }) {
-  const { isFiltered } = route.params || false
+  const { isFiltered } = route.params || false;
   const dispatch = useDispatch();
   const fields = useSelector(state => state.fields.fields);
-
+  const [ selected, setSelected ] = useState('list')
+  
   useEffect(() => {
-    if(!isFiltered) {
-      dispatch(fetchFields())
+    if (!isFiltered) {
+      dispatch(fetchFields());
     }
   }, [dispatch]);
 
@@ -22,11 +24,17 @@ export default function HomeScreen({ navigation, route }) {
     navigation.navigate('Detail', { id });
   };
 
+  useEffect(() => {
+    if(selected === 'map') {
+      navigation.navigate('Map', { fields })
+    }
+  }, [selected])
+
   return (
-    <View style={{ flex: 1, position: "relative", paddingBottom: 100 }}>
+    <View style={{ flex: 1, position: "relative", paddingBottom: 100, zIndex: 2 }}>
       <ScrollView>
         <Navbar onPress={() => navigation.navigate('Filter', { fields })} filterShow={true} />
-        <ListOrMap />
+        <ListOrMap selected={selected} setSelected={setSelected} />
         <View style={styles.card_list}>
           {fields.map((field, index) => (
             <MainCard key={index} field={field} onPress={() => handlePress(field.id)} />
@@ -57,5 +65,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     paddingHorizontal: 15
+  },
+  map_block: {
+    height: '100%',
   }
 });

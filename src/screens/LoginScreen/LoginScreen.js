@@ -2,39 +2,42 @@ import React, { useRef, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Linking } from 'react-native';
 import Header from '../../components/Header/Header';
 import Button from '../../components/Button/Button';
-import PersonalSVG from '../../../assets/images/svgs/PersonalSVG.JSX';
 import PhoneSVG from '../../../assets/images/svgs/PhoneSVG';
 import TelegramIcon from '../../../assets/images/svgs/TelegramSVG';
 import CheckPIN from '../../components/CheckPIN/CheckPIN';
 import { openTelegramBot } from '../../helpers/linkTelegram';
 import { storeData } from '../../helpers/storeHelper';
 import { useFonts } from 'expo-font';
+import { useDispatch, useSelector } from 'react-redux';
+import { signIn } from '../../redux/slices/auth/authSlice';
 
 const LoginScreen = ({ navigation }) => {
-  const nameInputRef = useRef(null);
+  const dispatch = useDispatch();
   const phoneInputRef = useRef(null);
   const [number, onChangeNumber] = React.useState('');
   const [checkPIN, setCheckPIN] = React.useState(false);
   const [pinTyped, setPinTyped] = React.useState(false);
   const [token, setToken] = React.useState(null);
+  const user = useSelector(state => state.auth.user);
 
-  const [ fontsLoaded ] = useFonts({
+  const [fontsLoaded] = useFonts({
     'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
     'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
     'Rubik-600': require("../../../assets/fonts/Rubik-SemiBold.ttf"),
     'Rubik-700': require("../../../assets/fonts/Rubik-Bold.ttf")
-  })
+  });
 
   const handleCheckPIN = () => {
+    dispatch(signIn({ phone_number: number }));
     setCheckPIN(true);
   };
 
   const handleOpenURL = (event) => {
     const url = event.url;
-    const token = url.split('token=')[1];
-    if (token) {
-      setToken(token);
-      storeData('token', JSON.stringify(token));
+    const tokenFromURL = url.split('token=')[1];
+    if (tokenFromURL) {
+      setToken(tokenFromURL);
+      storeData('token', JSON.stringify(tokenFromURL));
       navigation.navigate('Home');
     }
   };
@@ -71,7 +74,7 @@ const LoginScreen = ({ navigation }) => {
             </View>
             {checkPIN ? (
               <>
-                <CheckPIN setPinTyped={setPinTyped} />
+                <CheckPIN setPinTyped={setPinTyped} phoneNumber={number} />
                 <View style={styles.flexGrow} />
                 <View style={styles.btn_block}>
                   <Button pinTyped={pinTyped} onPress={() => navigation.navigate('Home')} title={'Продолжить'} />
@@ -81,15 +84,6 @@ const LoginScreen = ({ navigation }) => {
               <>
                 <Text style={styles.input_text}>Вход через номер</Text>
                 <View style={styles.inputs}>
-                  <TouchableOpacity style={styles.input_block} onPress={() => nameInputRef.current.focus()}>
-                    <PersonalSVG style={styles.input_svg} />
-                    <TextInput
-                      ref={nameInputRef}
-                      style={styles.input}
-                      placeholder="Введите свое имя"
-                      placeholderTextColor={"gray"}
-                    />
-                  </TouchableOpacity>
                   <TouchableOpacity style={styles.input_block} onPress={() => phoneInputRef.current.focus()}>
                     <PhoneSVG style={styles.input_svg} />
                     <TextInput

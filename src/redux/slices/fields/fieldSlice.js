@@ -148,7 +148,7 @@ export const saveToFavorite = createAsyncThunk('field/save', async (field_id, { 
         const token = getData('token');
         const response = await axios.post(`${API_URL}/favorites/`, { field: field_id }, {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token.access}`
             }
         })
         console.log(response.data);

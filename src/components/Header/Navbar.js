@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TextInput, View, Platform, TouchableOpacity } from 'react-native';
 import NotificationSVG from '../../../assets/images/svgs/Notification';
 import FilterSVG from '../../../assets/images/svgs/FilterSVG';
@@ -11,7 +11,7 @@ export default function Navbar({ onPress, filterShow }) {
   });
 
   return (
-    <View style={styles.safeArea}>
+    <View style={[styles.safeArea]}>
       <View style={styles.navbar}>
         <View style={styles.container}>
           <View style={styles.navbar_flex}>
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#237133',
-    paddingTop: Platform.OS === 'android' ? 0 : 50,
+    paddingTop: Platform.OS === 'android' ? 40 : 50,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
@@ -70,7 +70,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "600",
     color: "#ffffff",
-    fontFamily: "Rubik-500"
+    fontFamily: "Rubik-500",
+    width: "90%"
   },
   notification_block: {
     width: 25,

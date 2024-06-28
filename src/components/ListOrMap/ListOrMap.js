@@ -1,9 +1,8 @@
 import { useFonts } from 'expo-font';
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Animated } from 'react-native';
 
-export default function ListOrMap() {
-  const [selected, setSelected] = useState('list');
+export default function ListOrMap({ selected = 'list', setSelected }) {
   const animation = useRef(new Animated.Value(0)).current;
 
   const [fontsLoaded] = useFonts({
@@ -59,7 +58,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     width: 350,
     marginTop: 20,
-    backgroundColor: '#7676801F',
+    backgroundColor: '#e3e3e3',
     position: 'relative',
     justifyContent: "center",
     alignItems: "center",
