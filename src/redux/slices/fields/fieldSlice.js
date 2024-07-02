@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_URL } from '../../../utils/consts';
-import { getData } from '../../../helpers/storeHelper';
+import api from '../../../utils/axios';
 
 const initialState = {
     fields: [],
@@ -10,7 +10,8 @@ const initialState = {
     availabelFieldMonth: {},
     availabelFieldDay: [],
     fieldsForFilter: [],
-    savedFields: []
+    savedFields: [],
+    searchFields: []
 }
 
 const fieldSlice = createSlice({
@@ -37,6 +38,9 @@ const fieldSlice = createSlice({
     },
     setSaveField: (state, action) => {
         state.savedFields = action.payload.savedFields
+    },
+    setSearchedFields: (state, action) => {
+        state.searchFields = action.payload.searchFields
     }
   },
 });
@@ -62,9 +66,9 @@ export const fetchFields = createAsyncThunk('fields', async (filters = {}, { dis
         }
 
         if (Object.keys(filtersParams).length === 0) {
-            response = await axios.get(`${API_URL}/fields/`);
+            response = await api.get(`${API_URL}/fields/`);
         } else {
-            response = await axios.get(`${API_URL}/fields/`, { params: filtersParams });
+            response = await api.get(`${API_URL}/fields/`, { params: filtersParams });
         }
 
         dispatch(fieldSlice.actions.setFields({ fields: response.data.results }));
@@ -76,7 +80,7 @@ export const fetchFields = createAsyncThunk('fields', async (filters = {}, { dis
 
 export const fetchField = createAsyncThunk('field', async(id = 0, { dispatch }) => {
     try {
-        const response = await axios.get(`${API_URL}/fields/${id}/`);
+        const response = await api.get(`${API_URL}/fields/${id}/`);
         dispatch(fieldSlice.actions.setField({ field: response.data }))
     } catch (error) {
         console.log(error);
@@ -86,6 +90,7 @@ export const fetchField = createAsyncThunk('field', async(id = 0, { dispatch }) 
 export const fetchFieldByHour = createAsyncThunk('field/fetchByHour', async({ id, hour, minutes = 0 }, { dispatch }) => {
     try {
         const response = await axios.get(`${API_URL}/fields/${id}/?hours=${hour}&${minutes}/`);
+        console.log(response.data)
         dispatch(fieldSlice.actions.setFieldByHour({ field_by_hour: response.data }));
     } catch (error) {
         console.log(error);
@@ -129,32 +134,72 @@ export const fetchFilterFields = createAsyncThunk('field/filter', async(_, { dis
     }
 })
 
-export const fetchSavedFields = createAsyncThunk('field/fetchsaved', async ({ dispatch }) => {
+export const fetchSavedFields = createAsyncThunk('field/fetchsaved', async (_, { dispatch }) => {
     try {
-        const token = getData('token');
-        const response = await axios.get(`${API_URL}/favorites/`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-        dispatch(fieldSlice.actions.setSaveField({ savedFields: response.data.results }))
+        const response = await api.get(`${API_URL}/favorites/`);
+        dispatch(fieldSlice.actions.setSaveField({ savedFields: response.data.results }));
     } catch (error) {
-        console.log(error);
+        console.log('Fetch saved fields error:', error);
+        throw error;
+    }
+});
+
+export const saveToFavorite = createAsyncThunk(
+    'field/save',
+    async (field_id, { dispatch, rejectWithValue }) => {
+      try {
+        const response = await api.post(`/favorites/`, { field: field_id });
+        console.log(response.data);
+        dispatch(fetchFields());
+        return response.data;
+      } catch (error) {
+        
+        console.log('Favorite error: ', error);
+  
+        if (!error.response) {
+          return rejectWithValue('Network error: ' + error.message);
+        }
+  
+        if (error.response.data) {
+          return rejectWithValue(error.response.data);
+        } else {
+          return rejectWithValue(error.message);
+        }
+      }
+    }
+);  
+
+export const reviewPost = createAsyncThunk('field/reviewPost', async ({field, rating, comment}, { dispatch }) => {
+    try {
+        const data = {
+            user: {
+                email: "user@example.com",
+                name: "string"
+            },
+            rating: rating,
+            comment: comment,
+            field: field
+        }
+        const response = await api.post('/reviews/create/', data);
+        console.log(response.data);
+        dispatch(fetchField(field))
+    } catch (error) {
+        console.log('Review post error: ', error);
+        throw error;
     }
 })
 
-export const saveToFavorite = createAsyncThunk('field/save', async (field_id, { dispatch }) => {
+
+export const fetchSearchFields = createAsyncThunk('field/search', async ({search_filters}, { dispatch }) => {
     try {
-        const token = getData('token');
-        const response = await axios.post(`${API_URL}/favorites/`, { field: field_id }, {
-            headers: {
-                Authorization: `Bearer ${token.access}`
+        const response = await axios.get(`${API_URL}/fields/`, { 
+            params: {
+                search: search_filters
             }
-        })
-        console.log(response.data);
-        dispatch(fetchSavedFields())
+         })
+         dispatch(fieldSlice.actions.setSearchedFields({ searchFields: response.data.results }));
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
 })
 

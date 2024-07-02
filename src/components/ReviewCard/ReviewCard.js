@@ -16,10 +16,10 @@ export default function ReviewCard({ data = {} }) {
                 <View style={styles.container}>
                     <View style={styles.card_items}>
                         <View style={styles.card_item}>
-                            <Image source={{ uri: `https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-1080x675.jpg` }} alt='pole' style={styles.card_image} />
+                            <Image source={{ uri: `${data.user.avatar ? data.user.avatar : "https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-1080x675.jpg"}` }} alt='pole' style={styles.card_image} />
                         </View>
                         <View style={styles.card_item}>
-                            <Text style={styles.name}>Нияз</Text>
+                            <Text style={styles.name}>{ data.user.name }</Text>
                             <View style={styles.card_slots}>
                                 <View style={styles.slot}><Text style={styles.slot_text_address}>{ data.comment }</Text></View>
                             </View>

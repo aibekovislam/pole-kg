@@ -60,7 +60,7 @@ export const verifyUser = createAsyncThunk('auth/verify', async({ pin, number },
         }
         const { data: tokens } = await axios.post(`${API_URL}/users/pin/verify/`, postData);
         console.log(tokens)
-        storeData("token", JSON.stringify({ access: tokens.access }));
+        storeData("token", JSON.stringify({ access: tokens.access, refresh: tokens.refresh }));
         const response = await axios.get(`${API_URL}/users/me/`, {
             headers: {
                 Authorization: `Bearer ${tokens.access}`

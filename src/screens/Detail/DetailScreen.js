@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Animated, FlatList, ScrollView, Text, TouchableOpacity, View, Platform, TouchableHighlight, ActivityIndicator, TextInput } from 'react-native';
+import { Animated, ScrollView, Text, TouchableOpacity, View, Platform, TouchableHighlight, ActivityIndicator, TextInput } from 'react-native';
 import Navbar from '../../components/Header/Navbar';
 import CarouselImage from '../../components/Carousel/CarouselImage';
 import RatingNoSVG from '../../../assets/images/svgs/RatingNo';
 import SaveSVG from '../../../assets/images/svgs/SaveSVG';
 import SizeSVG from '../../../assets/images/svgs/SizeSVG';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAvailable, fetchField } from '../../redux/slices/fields/fieldSlice';
+import { fetchAvailable, fetchField, reviewPost } from '../../redux/slices/fields/fieldSlice';
 import FieldSVG from '../../../assets/images/svgs/Field';
 import { styles } from './DetailScreenCSS';
 import JustCarousel from '../../components/Carousel/JustCarousel';
@@ -21,7 +21,6 @@ import { renderRating } from '../../helpers/renderRating';
 import { getData } from '../../helpers/storeHelper';
 import { useFonts } from 'expo-font';
 import RatingSVG from '../../../assets/images/svgs/Rating';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function DetailScreen({ route, navigation }) {
   const { id } = route.params;
@@ -83,11 +82,10 @@ export default function DetailScreen({ route, navigation }) {
     setSelectedRating(rating);
   };
 
-  const renderItem = useCallback(({ item }) => {
-    return (
-      <ReviewCard data={item} />
-    );
-  }, []);
+  const handleReviewSubmit = () => {
+    setReviewText('');
+    dispatch(reviewPost({ field: field.id, rating: selectedRating, comment: reviewText }));
+  };  
 
   if (!fontsLoaded) {
     return null;
@@ -154,32 +152,40 @@ export default function DetailScreen({ route, navigation }) {
           </View>
           <View style={styles.reviews}>
             <Text style={[styles.review_title, { fontFamily: "Rubik-400" }]}>Отзывы</Text>
-            { field?.reviews.map((item, index) => (
+            { field?.reviews.slice(0, 3).map((item, index) => (
               <ReviewCard data={item} key={index} />
             )) }
           </View>
-          { token ? (
-            <View style={styles.review_input}>
-              <View style={styles.container_review}>
-                <View style={styles.leftSection}>
-                  <FaveSVG />
-                  <TextInput
-                    style={styles.input_review}
-                    onChangeText={setReviewText}
-                    value={reviewText}
-                    placeholder="Оставить отзыв"
-                    multiline
-                  />
-                </View>
-                <View style={styles.rightSection}>
-                  {[...Array(5)].map((_, index) => (
-                    <TouchableOpacity key={index} onPress={() => handleRatingPress(index + 1)}>
-                      {index < selectedRating ? <RatingSVG /> : <RatingNoSVG />}
-                    </TouchableOpacity>
-                  ))}
-                </View>
+          { field?.reviews.length > 3 ? (
+              <View style={{ width: "100%", marginTop: 10 }}>
+                <Button title='Посмотреть больше отзывов' onPress={() => navigation.navigate('Reviews', { reviews: field?.reviews })} />
               </View>
-            </View> 
+            ) : (null) }
+          { token ? (
+            <View style={{ rowGap: 10, width: "100%" }}>
+              <View style={styles.review_input}>
+                <View style={styles.container_review}>
+                  <View style={styles.leftSection}>
+                    <FaveSVG />
+                    <TextInput
+                      style={styles.input_review}
+                      onChangeText={setReviewText}
+                      value={reviewText}
+                      placeholder="Оставить отзыв"
+                      multiline
+                    />
+                  </View>
+                  <View style={styles.rightSection}>
+                    {[...Array(5)].map((_, index) => (
+                      <TouchableOpacity key={index} onPress={() => handleRatingPress(index + 1)}>
+                        {index < selectedRating ? <RatingSVG /> : <RatingNoSVG />}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              </View> 
+            <Button title='Оставить отзыв' onPress={() => handleReviewSubmit()} />
+            </View>
           ) : (null) }
         </View>
       </ScrollView>

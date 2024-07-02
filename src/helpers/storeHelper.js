@@ -4,7 +4,6 @@ export const storeData = async (key, value) => {
     try {
       await AsyncStorage.setItem(key, value);
     } catch (e) {
-      // saving error
       console.error(e);
     }
 }
@@ -16,7 +15,28 @@ export const getData = async (key) => {
         return value;
       }
     } catch (e) {
-      // error reading value
       console.error(e);
     }
 }  
+
+export const getToken = async (key) => {
+  try {
+      const value = await AsyncStorage.getItem(key);
+      if (value !== null) {
+          return JSON.parse(value);
+      }
+  } catch (e) {
+      console.error(e);
+  }
+  return null;
+};
+
+
+export const clearAsyncStorage = async () => {
+  try {
+    await AsyncStorage.clear();
+    console.log('AsyncStorage has been cleared');
+  } catch (error) {
+    console.error('Error clearing AsyncStorage: ', error);
+  }
+};

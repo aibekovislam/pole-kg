@@ -7,11 +7,13 @@ import Card from '../../components/MainCard/Card';
 import CalendarSVG from '../../../assets/images/svgs/CalendarSVG';
 import Button from '../../components/Button/Button';
 import { GestureHandlerRootView, PanGestureHandler, State } from 'react-native-gesture-handler';
-import { formatSlotEnd, formatSlotStart } from '../../helpers/format';
+import { toRent } from '../../redux/slices/bookings/bookingSlice';
+import { convertTimeStringToJSON } from '../../helpers/format';
+// import { formatSlotEnd, formatSlotStart } from '../../helpers/format';
 
 export default function PayScreen({ route, navigation }) {
   const dispatch = useDispatch();
-  const { field, selectedDate, fromTime, toTime } = route.params;
+  const { field, selectedDate, time } = route.params;
 
   const translateX = useRef(new Animated.Value(0)).current;
 
@@ -26,10 +28,20 @@ export default function PayScreen({ route, navigation }) {
     { useNativeDriver: true }
   );  
 
-  const startHours = parseInt(formatSlotStart(fromTime).hours, 10);
-  const endHours = parseInt(formatSlotEnd(toTime).hours, 10);
 
-  const hoursDiff = endHours - startHours;
+  const handleSubmitPay = (field_id) => {
+    const data = convertTimeStringToJSON(time)
+    dispatch(toRent({ 
+      start_time: data.start_time,
+      end_time: data.end_time,
+      field: field_id
+    }))
+  }
+
+  // const startHours = parseInt(formatSlotStart(fromTime).hours, 10);
+  // const endHours = parseInt(formatSlotEnd(toTime).hours, 10);
+
+  // const hoursDiff = endHours - startHours;
 
   const content = (
     <View style={{ height: "100%" }}>
@@ -46,13 +58,13 @@ export default function PayScreen({ route, navigation }) {
                     <View style={styles.time_button}>
                       <View style={{ flexDirection: "row", columnGap: 5 }}>
                         <Text style={[styles.time, {  color: "#828282"}]}>c</Text>
-                        <Text style={styles.time}>{ `${formatSlotStart(fromTime).hours}:${formatSlotStart(fromTime).minutes}` }</Text>
+                        <Text style={styles.time}>{ `${time}` }</Text>
                       </View>
                     </View>
                     <View style={styles.time_button}>
                         <View style={{ flexDirection: "row", columnGap: 5 }}>
                           <Text style={[styles.time, {  color: "#828282"}]}>до</Text>
-                          <Text style={styles.time}>{ `${formatSlotEnd(toTime).hours}:${formatSlotEnd(toTime).minutes}` }</Text>
+                          <Text style={styles.time}>{ `` }</Text>
                         </View>
                     </View>
                   </View>
@@ -64,13 +76,13 @@ export default function PayScreen({ route, navigation }) {
                     </View>
                 </View>
                 <View style={[styles.calendar_block, { backgroundColor: "white", borderWidth: 0.5, borderColor: "#B3B3B3" }]}>
-                    <Text style={styles.sum_text}>Сумма на оплату: <Text style={styles.money}>{`${field.price * hoursDiff}`} сом</Text></Text>
+                    <Text style={styles.sum_text}>Сумма на оплату: <Text style={styles.money}>сом</Text></Text>
                 </View>
             </View>
         </View>
       </ScrollView>
       <View style={styles.bottomNavbar_block}>
-        <Button title={"Оплатить"} />
+        <Button title={"Оплатить"} onPress={(() => handleSubmitPay(field.id))} />
         <BottomNavbar navigation={navigation} item={"home"} />
       </View>
     </View>

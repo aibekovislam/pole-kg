@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, Animated, Platform, ScrollView, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 import Navbar from '../../components/Header/Navbar';
 import CalendarSVG from '../../../assets/images/svgs/CalendarSVG';
 import Slider from '@react-native-community/slider';
@@ -130,6 +130,7 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
     const handleSliderComplete = (value) => {
         const hours = Math.floor(value / 2);
         const minutes = (value % 2) * 30;
+        console.log(hours, minutes);
         dispatch(fetchFieldByHour({ id, hour: hours, minutes: minutes }))
         return value;
     };
@@ -148,7 +149,7 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
     }, []);
 
     useEffect(() => {
-        console.log(selectedDate);
+        console.log('selected date: ', selectedDate);
         setSelectedDateSlots(transformSlots(fields_available_day));
     }, [selectedDate]);
 
@@ -188,7 +189,7 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
     }
 
     return (
-        <View style={{ position: "relative", height: "100%" }}>
+        <View style={{ position: "relative", height: "100%", flex: 1, paddingBottom: 100 }}>
             <ScrollView>
                 <Navbar/>
                 <View style={styles.detail_info}>
@@ -232,7 +233,7 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
                             </View>
                         </View>
                     </View>
-                    <View style={{ marginTop: 35, paddingBottom: 200 }}>
+                    <View style={{ marginTop: 35 }}>
                         <Text style={{fontFamily: "Rubik-400"}}>Свободные поля на { selectedDate ? formatSelctedDate(selectedDate) : ( today_or_tomorrow === 'today' ? "сегодня" : "завтра" ) }</Text>
                         <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: 5, rowGap: 6, marginTop: 10 }}>
                             { selectedDate ? (
@@ -260,13 +261,13 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
                     </View>
                 </View>
             </ScrollView>
-            <View style={[styles.bottomNavbar_block, Platform.OS === 'ios' ? { bottom: 30 } : { bottom: '-5%' }]}>
+            <View style={styles.bottomNavbar_block}>
                 <Button
                     pinTyped={access_to_pay}
                     title={"Перейти к оплате"}
                     onPress={() => {
                         const date = today_or_tomorrow === 'today' ? new Date() : new Date(today.getTime() + 24 * 60 * 60 * 1000);
-                        navigation.navigate('PayScreen', { field, selectedDate: selectedDate ? selectedDate : date.toISOString().split('T')[0], fromTime: choosed_slot?.start_time, toTime: choosed_slot?.end_time});
+                        navigation.navigate('PayScreen', { field, selectedDate: selectedDate ? selectedDate : date.toISOString().split('T')[0], time: choosed_slot.nigga_pro_max});
                     }}
                 />
                 <BottomNavbar navigation={navigation} item={"home"} />
@@ -342,8 +343,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "transparent",
         position: "absolute",
+        // top: '100%',
+        bottom: 20,
         paddingHorizontal: 15,
-        rowGap: 10,
+        rowGap: 10
     },
     loadingContainer: {
         flex: 1,

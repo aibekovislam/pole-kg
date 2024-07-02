@@ -28,3 +28,32 @@ export const formatSlotEnd = (end_time) => {
         minutes: endTime.getMinutes().toString().padStart(2, '0')
     };
 }
+
+export function convertTimeStringToJSON(timeString) {
+    function pad(number) {
+      return number < 10 ? '0' + number : number;
+    }
+  
+    const currentDate = new Date();
+  
+    const times = timeString.match(/(\d{2}):(\d{2})/g);
+  
+    const startHours = parseInt(times[0].split(':')[0], 10);
+    const startMinutes = parseInt(times[0].split(':')[1], 10);
+  
+    const endHours = parseInt(times[1].split(':')[0], 10);
+    const endMinutes = parseInt(times[1].split(':')[1], 10);
+  
+    const startTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), startHours, startMinutes);
+    const endTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), endHours, endMinutes);
+  
+    const startISO = startTime.toISOString();
+    const endISO = endTime.toISOString();
+  
+    const result = {
+      start_time: startISO,
+      end_time: endISO
+    };
+  
+    return result;
+}  

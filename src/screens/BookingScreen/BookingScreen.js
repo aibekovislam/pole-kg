@@ -1,19 +1,29 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { View, ScrollView, Text, StyleSheet, Image } from 'react-native'
 import Navbar from '../../components/Header/Navbar'
 import BookingCard from '../../components/MainCard/BookingCard'
 import { useFonts } from 'expo-font'
 import BottomNavbar from '../../components/bottomNavbar/BottomNavbar'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchBookings } from '../../redux/slices/bookings/bookingSlice'
 
 function BookingScreen({ navigation }) {
+  const bookings = useSelector((state => state.bookings.bookings));
+  const dispatch = useDispatch();
+
   const [fontsLoaded] = useFonts({
     'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
   });
+
+  useEffect(() => {
+    dispatch(fetchBookings())
+  }, [dispatch])
 
   if (!fontsLoaded) {
     return null;
   }
 
+  console.log(bookings)
   return (
     <View style={{ position: "relative" }}>
         <ScrollView>
