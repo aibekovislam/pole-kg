@@ -2,7 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, Platform, Image } from 'react-native';
 import { useFonts } from 'expo-font';
 
-export default function UserNavbar() {
+export default function UserNavbar({ user }) {
+
   const [fontsLoaded] = useFonts({
     'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
     'Rubik-500': require("../../../assets/fonts/Rubik-Medium.ttf"),
@@ -14,11 +15,11 @@ export default function UserNavbar() {
         <View style={styles.container}>
           <View style={styles.navbar_flex}>
             <View style={styles.navbar_flex_row}>
-                <Image source={{ uri: "https://tse1.mm.bing.net/th/id/OET.7252da000e8341b2ba1fb61c275c1f30?w=594&h=594&c=7&rs=1&o=5&pid=1.9" }} style={styles.avatar} />
+              <Image source={{ uri: user?.avatar ? user?.avatar : "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" }} style={styles.avatar} />
             </View>
             <View style={styles.navbar_flex_row_text}>
-              <Text style={{ fontSize: 20, fontWeight: "500", fontFamily: "Rubik-500", color: "#ffffff" }} >Ислам</Text>
-              <Text style={{ fontSize: 16, fontWeight: "500", fontFamily: "Rubik-500", color: "#ffffff" }} >+996 706 91 61 65</Text>
+              <Text style={{ fontSize: 20, fontWeight: "500", fontFamily: "Rubik-500", color: "#ffffff" }} >{ user?.name }</Text>
+              <Text style={{ fontSize: 16, fontWeight: "500", fontFamily: "Rubik-500", color: "#ffffff" }} >{ user?.phone_number }</Text>
             </View>
           </View>
         </View>

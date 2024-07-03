@@ -37,11 +37,12 @@ api.interceptors.response.use(
       try {
         const refreshToken = await AsyncStorage.getItem('token');
         const parsedToken = JSON.parse(refreshToken);
+        console.log(parsedToken)
         const response = await axios.post('http://167.71.55.32/users/jwt/refresh/', {
           refresh: parsedToken.refresh,
         });
 
-        const newAccessToken = response.data.access;
+        const newAccessToken = response.data;
         await AsyncStorage.setItem('token', JSON.stringify({ access: newAccessToken }));
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;

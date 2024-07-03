@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_URL } from '../../../utils/consts';
-import { storeData } from '../../../helpers/storeHelper';
+import { clearAsyncStorage, storeData } from '../../../helpers/storeHelper';
+import api from '../../../utils/axios';
 
 const initialState = {
     user: null,
@@ -77,6 +78,35 @@ export const verifyUser = createAsyncThunk('auth/verify', async({ pin, number },
         } else {
             return rejectWithValue(error.message);
         }
+    }
+})
+
+export const deleteUser = createAsyncThunk('auth/delete', async (_, { dispatch }) => {
+    try {
+        const response = await api.delete('/users/me/');
+        console.log(response.data);
+        dispatch(authSlice.actions.setUser(null));
+        clearAsyncStorage();
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+export const patchUser = createAsyncThunk('user/patch', async({ name, phone_number }, { dispatch }) => {
+    try {
+        const data = {
+            name: name,
+            email: ''
+        }
+        const response = await api.patch('/users/me/', data);
+        console.log(response.data);
+        const userResponse = await api.get(`${API_URL}/users/me/`)
+        console.log('user: ', userResponse.data)
+        dispatch(authSlice.actions.setUser(userResponse.data));
+        dispatch(authSlice.actions.setIsAuthendticated(true));
+        storeData('userInfo', JSON.stringify(userResponse.data))
+    } catch (error) {
+        console.log(error);
     }
 })
 

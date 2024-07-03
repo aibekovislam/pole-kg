@@ -6,6 +6,7 @@ import BottomNavbar from "../../components/bottomNavbar/BottomNavbar";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFields } from '../../redux/slices/fields/fieldSlice';
 import ListOrMap from '../../components/ListOrMap/ListOrMap';
+import { clearAsyncStorage } from '../../helpers/storeHelper';
 
 export default function HomeScreen({ navigation, route }) {
   const { isFiltered } = route.params || false;
@@ -28,6 +29,7 @@ export default function HomeScreen({ navigation, route }) {
       navigation.navigate('Map', { fields })
     }
   }, [selected])
+
 
   return (
     <View style={{ flex: 1, position: "relative", paddingBottom: 100, zIndex: 2 }}>

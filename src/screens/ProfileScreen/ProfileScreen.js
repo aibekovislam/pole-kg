@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import BottomNavbar from '../../components/bottomNavbar/BottomNavbar';
 import UserNavbar from '../../components/Header/UserNavbar';
@@ -7,42 +7,60 @@ import TimeSvg from '../../../assets/images/svgs/TimeSvg';
 import ShareSvg from '../../../assets/images/svgs/ShareSvg';
 import SettingsSvg from '../../../assets/images/svgs/Settings';
 import { useFonts } from 'expo-font';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ProfileScreen = ({ navigation }) => {
-  const [fontsLoaded] = useFonts({
-    'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
-  });
+    const [fontsLoaded] = useFonts({
+      'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
+    });
 
-  return (
-    <View style={{ position: "relative" }}>
-        <ScrollView style={{paddingBottom: 120}}>
-            <UserNavbar/>
-            <View style={styles.profile_options_block}>
-              <View style={styles.options}>
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Patch')}>
-                  <PenSvg/>
-                  <Text style={{ fontSize: 16, fontFamily: "Rubik-400" }}>Редактировать аккаунт</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.option}>
-                  <TimeSvg/>
-                  <Text style={{ fontSize: 16, fontFamily: "Rubik-400" }}>История броней</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.option}>
-                  <ShareSvg/>
-                  <Text style={{ fontSize: 16, fontFamily: "Rubik-400" }}>Пригласить друзей</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Settings')}>
-                  <SettingsSvg/>
-                  <Text style={{ fontSize: 16, fontFamily: "Rubik-400" }}>Настройки</Text>
-                </TouchableOpacity>
+    const [user, setUser] = useState(null);
+
+    const getUser = async () => {
+        const resultUser = await AsyncStorage.getItem('userInfo');
+        if (resultUser) {
+            const parsedUser = JSON.parse(resultUser);
+            setUser(parsedUser);
+        }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            getUser();
+        }, [])
+    );
+
+    return (
+      <View style={{ position: "relative" }}>
+          <ScrollView style={{paddingBottom: 120}}>
+              <UserNavbar user={user} />
+              <View style={styles.profile_options_block}>
+                <View style={styles.options}>
+                  <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Patch', { user: user })}>
+                    <PenSvg/>
+                    <Text style={{ fontSize: 16, fontFamily: "Rubik-400" }}>Редактировать аккаунт</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.option}>
+                    <TimeSvg/>
+                    <Text style={{ fontSize: 16, fontFamily: "Rubik-400" }}>История броней</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.option}>
+                    <ShareSvg/>
+                    <Text style={{ fontSize: 16, fontFamily: "Rubik-400" }}>Пригласить друзей</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Settings', { user: user })}>
+                    <SettingsSvg/>
+                    <Text style={{ fontSize: 16, fontFamily: "Rubik-400" }}>Настройки</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-        </ScrollView>
-        <View style={styles.bottom_navbar}>
-            <BottomNavbar navigation={navigation} item={"profile"} />
-        </View>
-    </View>
-  );
+          </ScrollView>
+          <View style={styles.bottom_navbar}>
+              <BottomNavbar navigation={navigation} item={"profile"} />
+          </View>
+      </View>
+    );
 };
 
 const styles = StyleSheet.create({

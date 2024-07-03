@@ -6,7 +6,9 @@ import { useFonts } from 'expo-font';
 import NotificationSVG from '../../../assets/images/svgs/Notification';
 import LngSvg from '../../../assets/images/svgs/LngSvg';
 
-const ProfileSetting = ({ navigation }) => {
+const ProfileSetting = ({ navigation, route }) => {
+    const { user } = route.params
+
     const [isEnabled, setIsEnabled] = useState(true);
     const [ showLng, setShowLng ] = useState(false);
     const [isRussian, setIsRussian] = useState(true);
@@ -33,7 +35,7 @@ const ProfileSetting = ({ navigation }) => {
     return (
         <View style={{ position: "relative" }}>
             <ScrollView style={{paddingBottom: 120}}>
-                <UserNavbar/>
+                <UserNavbar user={user} />
                 <View style={styles.profile_options_block}>
                 <View style={styles.options}>
                     <Text style={{ color: "#237133", fontSize: 20, textAlign: 'left', marginTop: 10, fontFamily: "Rubik-500" }}>Настройки</Text>

@@ -20,30 +20,21 @@ import ProfilePatchScreen from '../screens/ProfileScreen/ProfilePatchScreen';
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
-  const [initialRoute, setInitialRoute] = useState('Login');
-  const [ token, setToken ] = useState(null);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
     const checkToken = async () => {
-      const token = await AsyncStorage.getItem('token');
-      setToken(token)
+      const storedToken = await AsyncStorage.getItem('token');
+      setToken(storedToken);
     };
 
     checkToken();
   }, []);
 
-  useEffect(() => {
-    if (token) {
-      setInitialRoute('Home');
-    }
-  }, [initialRoute])
-
-  console.log(initialRoute)
-
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={initialRoute}>
-        { token ? (
+      <Stack.Navigator initialRouteName={token ? 'Home' : 'Login'}>
+        {token ? (
           <>
             <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Detail" component={DetailScreen} options={{ headerShown: false }} />
@@ -63,7 +54,7 @@ const AppNavigator = () => {
             <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
           </>
-        ) }
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

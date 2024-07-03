@@ -1,49 +1,104 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import BottomNavbar from '../../components/bottomNavbar/BottomNavbar';
 import UserNavbar from '../../components/Header/UserNavbar';
 import OutSvg from '../../../assets/images/svgs/OutSvg';
+import { useDispatch } from 'react-redux';
+import { deleteUser, patchUser } from '../../redux/slices/auth/authSlice';
+import * as ImagePicker from 'expo-image-picker';
+import Constants from 'expo-constants';
 
-const ProfilePatchScreen = ({ navigation }) => {
-    const [name, setName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
+const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";
+
+const ProfilePatchScreen = ({ navigation, route }) => {
+    const { user } = route.params;
+
+    const [name, setName] = useState(user.name);
+    const [phoneNumber, setPhoneNumber] = useState(user.phone_number);
+    const [avatar, setAvatar] = useState(user.avatar || defaultAvatar);
+
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        getGalleryPermission();
+    }, []);
+
+    const getGalleryPermission = async () => {
+        if (Constants.platform?.ios) {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Нет разрешений', 'Извините, но вам нужно разрешить доступ к галерее, чтобы выбирать изображения.');
+            }
+        }
+    };
+
+    const handleBlur = () => {
+        dispatch(patchUser({ name, phone_number: phoneNumber, avatar }));
+    };
+
+    const handleChooseAvatar = async () => {
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1,
+            });
+            
+            if (!result.canceled) {
+                setAvatar(result.uri);
+                handleBlur();
+            } else {
+                if (!avatar) {
+                    setAvatar(defaultAvatar);
+                }
+            }
+        } catch (error) {
+            console.log('ImagePicker Error: ', error);
+            Alert.alert('Ошибка', 'Не удалось выбрать изображение. Попробуйте снова.');
+        }
+    };
 
     return (
         <View style={{ position: "relative" }}>
-            <ScrollView style={{paddingBottom: 120}}>
-                <UserNavbar/>
+            <ScrollView style={{ paddingBottom: 120 }}>
+                <UserNavbar user={user} />
                 <View style={styles.profile_options_block}>
-                <View style={[styles.options, { position: "relative" } ]}>
-                    <Text style={{ color: "#237133", fontSize: 20, textAlign: 'left', marginTop: 10, fontFamily: "Rubik-500" }}>Редактировать аккаунт</Text>
-                    <View style={{ flexDirection: "column", rowGap: 15 }}>
-                        <View style={{ width: "100%", alignItems: "center", marginTop: 10 }} >
-                            <Image source={{ uri: "https://tse1.mm.bing.net/th/id/OET.7252da000e8341b2ba1fb61c275c1f30?w=594&h=594&c=7&rs=1&o=5&pid=1.9" }} style={styles.avatar} />
-                            <Text style={{ color: "#0085FF", fontWeight: "500", marginTop: 5 }}>Изменить фото</Text>
+                    <View style={[styles.options, { position: "relative" }]}>
+                        <Text style={{ color: "#237133", fontSize: 20, textAlign: 'left', marginTop: 10, fontFamily: "Rubik-500" }}>Редактировать аккаунт</Text>
+                        <View style={{ flexDirection: "column", rowGap: 15 }}>
+                            <View style={{ width: "100%", alignItems: "center", marginTop: 10 }} >
+                                <TouchableOpacity style={{ justifyContent: "center", alignItems: "center" }} onPress={handleChooseAvatar}>
+                                    <Image source={{ uri: avatar }} style={styles.avatar} />
+                                    <Text style={{ color: "#0085FF", fontWeight: "500", marginTop: 5, textAlign: "center" }}>Изменить фото</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <FloatingLabelInput
+                                label="Имя"
+                                value={name}
+                                onChangeText={value => setName(value)}
+                                onBlur={handleBlur}
+                                containerStyles={styles.inputContainer}
+                                customLabelStyles={styles.labelStyles}
+                                inputStyles={styles.inputStyles}
+                            />
+                            <FloatingLabelInput
+                                label="Номер телефона"
+                                value={phoneNumber}
+                                onChangeText={value => setPhoneNumber(value)}
+                                onBlur={handleBlur}
+                                containerStyles={styles.inputContainer}
+                                customLabelStyles={styles.labelStyles}
+                                inputStyles={styles.inputStyles}
+                                keyboardType="phone-pad"
+                            />
                         </View>
-                        <FloatingLabelInput
-                            label="Имя"
-                            value={name}
-                            onChangeText={value => setName(value)}
-                            containerStyles={styles.inputContainer}
-                            customLabelStyles={styles.labelStyles}
-                            inputStyles={styles.inputStyles}
-                        />
-                        <FloatingLabelInput
-                            label="Номер телефона"
-                            value={phoneNumber}
-                            onChangeText={value => setPhoneNumber(value)}
-                            containerStyles={styles.inputContainer}
-                            customLabelStyles={styles.labelStyles}
-                            inputStyles={styles.inputStyles}
-                            keyboardType="phone-pad"
-                        />
+                        <TouchableOpacity onPress={() => dispatch(deleteUser())} style={{ flexDirection: "row", columnGap: 10, position: "absolute", bottom: 20, left: 20 }}>
+                            <OutSvg />
+                            <Text style={{ color: "#CA3737", fontWeight: "500", fontSize: 16 }}>Удалить аккаунт</Text>
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={{ flexDirection: "row", columnGap: 10, position: "absolute", bottom: 20, left: 20 }}>
-                        <OutSvg/>
-                        <Text style={{ color: "#CA3737", fontWeight: "500", fontSize: 16 }}>Удалить аккаунт</Text>
-                    </TouchableOpacity>
-                </View>
                 </View>
             </ScrollView>
             <View style={styles.bottom_navbar}>
@@ -63,25 +118,25 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
     },
     profile_options_block: {
-      flex: 1,
-      width: "100%",
-      paddingHorizontal: 15,
-      marginTop: 10
+        flex: 1,
+        width: "100%",
+        paddingHorizontal: 15,
+        marginTop: 10
     },
     options: {
-      width: "100%",
-      height: 625,
-      backgroundColor: "#ffffff",
-      borderRadius: 20,
-      paddingHorizontal: 15,
+        width: "100%",
+        height: 625,
+        backgroundColor: "#ffffff",
+        borderRadius: 20,
+        paddingHorizontal: 15,
     },
     option: {
-      flexDirection: "row",
-      columnGap: 10,
-      width: "100%",
-      borderBottomWidth: 1,
-      borderBottomColor: "#B3B3B3",
-      paddingVertical: 20
+        flexDirection: "row",
+        columnGap: 10,
+        width: "100%",
+        borderBottomWidth: 1,
+        borderBottomColor: "#B3B3B3",
+        paddingVertical: 20
     },
     inputContainer: {
         borderWidth: 0.5,
