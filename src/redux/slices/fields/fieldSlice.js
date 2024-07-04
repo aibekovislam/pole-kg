@@ -73,7 +73,7 @@ export const fetchFields = createAsyncThunk('fields', async (filters = {}, { dis
 
         dispatch(fieldSlice.actions.setFields({ fields: response.data.results }));
     } catch (error) {
-        console.log(error);
+        console.log('fields error: ', error);
     }
 });
 
@@ -83,17 +83,17 @@ export const fetchField = createAsyncThunk('field', async(id = 0, { dispatch }) 
         const response = await api.get(`${API_URL}/fields/${id}/`);
         dispatch(fieldSlice.actions.setField({ field: response.data }))
     } catch (error) {
-        console.log(error);
+        console.log('field id error: ', error);
     }
 })
 
-export const fetchFieldByHour = createAsyncThunk('field/fetchByHour', async({ id, hour, minutes = 0 }, { dispatch }) => {
+export const fetchFieldByHour = createAsyncThunk('field/fetchByHour', async({ id, hour, minutes = 0, date }, { dispatch }) => {
     try {
-        const response = await axios.get(`${API_URL}/fields/${id}/?hours=${hour}&${minutes}/`);
-        console.log(response.data)
+        console.log('date in slice: ', date);
+        const response = await api.get(`${API_URL}/fields/${id}/?hours=${hour}&minutes=${minutes}&date=${date}`);
         dispatch(fieldSlice.actions.setFieldByHour({ field_by_hour: response.data }));
     } catch (error) {
-        console.log(error);
+        console.log('field error by date and hour: ', error);
     }
 });
 
@@ -102,7 +102,7 @@ export const fetchAvailable = createAsyncThunk('field/available', async(data = {
         const response = await axios.get(`${API_URL}/field-availability-month/?field_id=${data.field_id}&month=${data.month}&year=${data.year}`);        
         dispatch(fieldSlice.actions.setAvailabelFieldMonth({ availabelFieldMonth: response.data }))
     } catch (error) {
-        console.log(error);
+        console.log('field month error: ', error);
     }
 })
 
@@ -111,7 +111,7 @@ export const fetchAvailableDay = createAsyncThunk('field/available', async(data 
         const response = await axios.get(`${API_URL}/field-availability-day/?field_id=${data.field_id}&date=${data.date}`);        
         dispatch(fieldSlice.actions.setAvailabelFieldDay({ availabelFieldDay: response.data }));
     } catch (error) {
-        console.log(error);
+        console.log('field a day error: ', error);
     }
 })
 
@@ -121,7 +121,7 @@ export const postReview = createAsyncThunk('field/review', async(data, { dispatc
         console.log(response);
         dispatch(fetchField(data.field));
     } catch (error) {
-        console.log(error);
+        console.log('post review error: ', error);
     }
 })
 
@@ -130,7 +130,7 @@ export const fetchFilterFields = createAsyncThunk('field/filter', async(_, { dis
         const response = await axios.get(`${API_URL}/fields/`);
         dispatch(fieldSlice.actions.setFieldsForFilter({ fieldsForFilter: response.data.results }))
     } catch (error) {
-        console.log(error);
+        console.log('error filter fields: ', error);
     }
 })
 
@@ -199,7 +199,7 @@ export const fetchSearchFields = createAsyncThunk('field/search', async ({search
          })
          dispatch(fieldSlice.actions.setSearchedFields({ searchFields: response.data.results }));
     } catch (error) {
-        console.log(error)
+        console.log('search error: ', error)
     }
 })
 

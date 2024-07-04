@@ -1,8 +1,9 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { useFonts } from 'expo-font';
+import { calculateTimeDifference, formatDateTimeEnd, formatDateTimeStart, formatSlotEnd, formatSlotStart, formatTimeDifference } from '../../helpers/format';
 
-export default function BookingCard() {
+export default function BookingCard({ data, user }) {
 
     const [fontsLoaded] = useFonts({
         'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
@@ -11,20 +12,28 @@ export default function BookingCard() {
         'Rubik-700': require("../../../assets/fonts/Rubik-Bold.ttf")
     });
 
+    const timeDifference = calculateTimeDifference(data.end_time);
+    const formattedTimeDifference = formatTimeDifference(timeDifference);
+
+    const startHours = parseInt(formatSlotStart(data.start_time).hours, 10);
+    const endHours = parseInt(formatSlotEnd(data.end_time).hours, 10);
+
+    const hoursDiff = endHours - startHours;
+
     return (
         <View>
             <View style={styles.card}>
                 <View style={styles.container}>
                     <View style={styles.card_items}>
                         <View style={styles.card_item}>
-                            <Image source={{ uri: `https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-1080x675.jpg` }} alt='pole' style={styles.card_image} />
+                            <Image source={{ uri: user.avatar ? user.avatar : "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" }} alt='pole' style={styles.card_image} />
                         </View>
                         <View style={styles.card_item}>
-                            <Text style={styles.name}>Нияз</Text>
+                            <Text style={styles.name}>{ user?.name }</Text>
                             <View style={styles.card_slots}>
-                                <View style={styles.slot}><Text style={styles.slot_text}>с 22:30</Text></View>
-                                <View style={styles.slot}><Text style={styles.slot_text}>до 22:30</Text></View>
-                                <View style={styles.slot}><Text style={styles.slot_text_address}>Жусупа Абдрахманова 119</Text></View>
+                                <View style={styles.slot}><Text style={styles.slot_text}>{ formatDateTimeStart(data?.start_time) }</Text></View>
+                                <View style={styles.slot}><Text style={styles.slot_text}>{ formatDateTimeEnd(data?.end_time) }</Text></View>
+                                <View style={styles.slot}><Text style={styles.slot_text_address}>{ data?.field.address }</Text></View>
                             </View>
                         </View>
                     </View>
@@ -34,12 +43,12 @@ export default function BookingCard() {
                 <View style={styles.container}>
                     <View style={styles.card_bottom_items}>
                         <View style={styles.card_bottom_item}>
-                            <Text style={styles.card_bottom_item_title}>Игра через</Text>
-                            <Text style={styles.card_bottom_item_title_green}>6 часов</Text>
+                            <Text style={styles.card_bottom_item_title}>Игра через </Text>
+                            <Text style={styles.card_bottom_item_title_green}>{ formattedTimeDifference }</Text>
                         </View>
                         <View style={styles.card_bottom_item}>
                             <Text style={styles.card_bottom_item_title}>Итого</Text>
-                            <Text style={styles.card_bottom_item_title_green}>4000 сом</Text>
+                            <Text style={styles.card_bottom_item_title_green}>{ data?.field.price * hoursDiff }</Text>
                         </View>
                     </View>
                 </View>

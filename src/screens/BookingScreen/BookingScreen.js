@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { View, ScrollView, Text, StyleSheet, Image } from 'react-native'
 import Navbar from '../../components/Header/Navbar'
 import BookingCard from '../../components/MainCard/BookingCard'
@@ -6,9 +6,27 @@ import { useFonts } from 'expo-font'
 import BottomNavbar from '../../components/bottomNavbar/BottomNavbar'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchBookings } from '../../redux/slices/bookings/bookingSlice'
+import { useFocusEffect } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 function BookingScreen({ navigation }) {
   const bookings = useSelector((state => state.bookings.bookings));
+  const [user, setUser] = useState(null);
+
+  const getUser = async () => {
+    const resultUser = await AsyncStorage.getItem('userInfo');
+    if (resultUser) {
+      const parsedUser = JSON.parse(resultUser);
+      setUser(parsedUser);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+        getUser();
+    }, [])
+  );
+
   const dispatch = useDispatch();
 
   const [fontsLoaded] = useFonts({
@@ -23,9 +41,8 @@ function BookingScreen({ navigation }) {
     return null;
   }
 
-  console.log(bookings)
   return (
-    <View style={{ position: "relative" }}>
+    <View style={{ position: "relative", height: "100%" }}>
         <ScrollView>
             <Navbar />
             <View style={styles.container}>
@@ -33,16 +50,9 @@ function BookingScreen({ navigation }) {
                 <Text style={styles.booking_text}>Мои брони</Text>
               </View>
               <View style={[styles.cards, { paddingBottom: 100 }]}>
-                <BookingCard/>
-                <BookingCard/>
-                <BookingCard/>
-                <BookingCard/>
-                <BookingCard/>
-                <BookingCard/>
-                <BookingCard/>
-                <BookingCard/>
-                <BookingCard/>
-                <BookingCard/>
+                { bookings.map((item, index) => (
+                  <BookingCard key={index} data={item} user={user} />
+                )) }
               </View>
             </View>
         </ScrollView>

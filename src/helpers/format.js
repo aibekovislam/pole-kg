@@ -57,3 +57,54 @@ export function convertTimeStringToJSON(timeString) {
   
     return result;
 }  
+
+export const formatDateToYYYYMMDD = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+
+export const formatDateTimeStart = (dateTimeString) => {
+    const date = new Date(dateTimeString);
+  
+    const timeString = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  
+    return `с ${timeString}`;
+}
+
+export const formatDateTimeEnd = (dateTimeString) => {
+    const date = new Date(dateTimeString);
+  
+    const timeString = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  
+    return `до ${timeString}`;
+}
+  
+
+export const calculateTimeDifference = (endTimeString) => {
+    const endTime = new Date(endTimeString);
+    const now = new Date();
+  
+    const timeDifference = endTime - now;
+  
+    const hours = Math.floor(timeDifference / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+  
+    return { hours, minutes };
+}
+  
+export const formatTimeDifference = ({ hours, minutes }) => {
+    let result = "";
+  
+    if (hours > 0) {
+      result += `${hours} часов `;
+    }
+  
+    if (minutes > 0) {
+      result += `${minutes} минут`;
+    }
+  
+    return result.trim();
+}  

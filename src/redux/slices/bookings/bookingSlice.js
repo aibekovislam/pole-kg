@@ -32,12 +32,12 @@ export const toRent = createAsyncThunk('booking/post', async ({ start_time, end_
         const data = {
             start_time: start_time,
             end_time: end_time,
-            field: field
+            field_id: field
         }
         const response = await api.post(`/bookings/`, data);
         console.log(response.data);
     } catch (error) {
-        console.log(error);
+        console.log('to Rent error: ', error);
     }
 })
 

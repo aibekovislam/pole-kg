@@ -92,23 +92,41 @@ export const deleteUser = createAsyncThunk('auth/delete', async (_, { dispatch }
     }
 })
 
-export const patchUser = createAsyncThunk('user/patch', async({ name, phone_number }, { dispatch }) => {
+export const patchUser = createAsyncThunk('user/patch', async ({ name, phone_number, avatar }, { dispatch }) => {
     try {
-        const data = {
-            name: name,
-            email: ''
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('phone_number', phone_number);
+        if (avatar) {
+            formData.append('avatar', {
+                uri: avatar,
+                name: 'avatar.jpg',
+                type: 'image/jpeg',
+            });
         }
-        const response = await api.patch('/users/me/', data);
-        console.log(response.data);
-        const userResponse = await api.get(`${API_URL}/users/me/`)
-        console.log('user: ', userResponse.data)
+
+        console.log(formData);
+
+        const response = await api.patch('/users/update_me/', formData, {
+            headers: {
+                "Content-Type": 'multipart/form-data',
+            }
+        });
+
+        console.log('patch successfull: ', response.data);
+
+        const userResponse = await api.get('/users/me/');
+        console.log('user: ', userResponse.data);
+        
         dispatch(authSlice.actions.setUser(userResponse.data));
-        dispatch(authSlice.actions.setIsAuthendticated(true));
-        storeData('userInfo', JSON.stringify(userResponse.data))
+        storeData('userInfo', JSON.stringify(userResponse.data));
     } catch (error) {
-        console.log(error);
+        console.log('API response error:', error);
+        if (error.response && error.response.data) {
+            console.log('API response data:', error.response.data);
+        }
     }
-})
+});
 
 export const { setUser } = authSlice.actions;
 export default authSlice.reducer;

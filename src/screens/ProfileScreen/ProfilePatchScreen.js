@@ -34,7 +34,7 @@ const ProfilePatchScreen = ({ navigation, route }) => {
     };
 
     const handleBlur = () => {
-        dispatch(patchUser({ name, phone_number: phoneNumber, avatar }));
+        dispatch(patchUser({ name: name, phone_number: phoneNumber, avatar: avatar }));
     };
 
     const handleChooseAvatar = async () => {

@@ -43,7 +43,7 @@ api.interceptors.response.use(
         });
 
         const newAccessToken = response.data;
-        await AsyncStorage.setItem('token', JSON.stringify({ access: newAccessToken }));
+        await AsyncStorage.setItem('token', JSON.stringify(newAccessToken));
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
