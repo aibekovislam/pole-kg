@@ -29,7 +29,8 @@ export default function HomeScreen({ navigation, route }) {
       navigation.navigate('Map', { fields })
     }
   }, [selected])
-
+  
+  // clearAsyncStorage();
 
   return (
     <View style={{ flex: 1, position: "relative", paddingBottom: 100, zIndex: 2 }}>

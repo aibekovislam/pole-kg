@@ -2,6 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import { renderRating } from '../../helpers/renderRating';
+import { API_URL } from '../../utils/consts';
 
 export default function ReviewCard({ data = {} }) {
 
@@ -16,7 +17,7 @@ export default function ReviewCard({ data = {} }) {
                 <View style={styles.container}>
                     <View style={styles.card_items}>
                         <View style={styles.card_item}>
-                            <Image source={{ uri: `${data.user.avatar ? data.user.avatar : "https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-1080x675.jpg"}` }} alt='pole' style={styles.card_image} />
+                            <Image source={{ uri: `${data.user.avatar ? `${API_URL}${data.user.avatar}` : "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"}` }} alt='pole' style={styles.card_image} />
                         </View>
                         <View style={styles.card_item}>
                             <Text style={styles.name}>{ data.user.name }</Text>

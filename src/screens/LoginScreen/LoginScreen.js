@@ -38,7 +38,7 @@ const LoginScreen = ({ navigation }) => {
     if (tokenFromURL) {
       setToken(tokenFromURL);
       storeData('token', JSON.stringify(tokenFromURL));
-      navigation.navigate('Home');
+      navigation.navigate('Root');
     }
   };
 
@@ -77,7 +77,7 @@ const LoginScreen = ({ navigation }) => {
                 <CheckPIN setPinTyped={setPinTyped} phoneNumber={number} />
                 <View style={styles.flexGrow} />
                 <View style={styles.btn_block}>
-                  <Button pinTyped={pinTyped} onPress={() => navigation.navigate('Home')} title={'Продолжить'} />
+                  <Button pinTyped={pinTyped} onPress={() => navigation.navigate('Root')} title={'Продолжить'} />
                 </View>
               </>
             ) : (

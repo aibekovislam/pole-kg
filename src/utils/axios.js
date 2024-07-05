@@ -37,15 +37,16 @@ api.interceptors.response.use(
       try {
         const refreshToken = await AsyncStorage.getItem('token');
         const parsedToken = JSON.parse(refreshToken);
-        console.log(parsedToken)
+        console.log('Refresh token used:', parsedToken.refresh);
+        
         const response = await axios.post('http://167.71.55.32/users/jwt/refresh/', {
           refresh: parsedToken.refresh,
         });
 
-        const newAccessToken = response.data;
-        await AsyncStorage.setItem('token', JSON.stringify(newAccessToken));
+        const token = response.data;
+        await AsyncStorage.setItem('token', JSON.stringify(token));
 
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${token.access}`;
         return api(originalRequest);
       } catch (refreshError) {
         console.log('Refresh token failed:', refreshError);

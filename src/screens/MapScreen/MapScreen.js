@@ -17,10 +17,10 @@ export default function MapScreen({ navigation, route }) {
   }, [selected]);
 
   return (
-    <View style={{ flex: 1, position: "relative" }}>
+    <View style={{ flex: 1, position: "relative", width: "100%" }}>
       <ScrollView>
         <Navbar onPress={() => navigation.navigate('Filter', { fields })} filterShow={true} />
-        <View style={{ position: "absolute", zIndex: 2, top: '12%', right: '5%'}}>
+        <View style={{ position: "absolute", zIndex: 2, top: "13%", left: "7%"}}>
           <ListOrMap selected={selected} setSelected={setSelected} />
         </View>
         <View style={styles.map_block}>

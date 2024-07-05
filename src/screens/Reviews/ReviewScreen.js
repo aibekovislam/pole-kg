@@ -27,8 +27,8 @@ export default function ReviewScreen({ route, navigation }) {
         <Navbar />
         <Text style={{ paddingHorizontal: 15, fontSize: 14, marginTop: 10}} >Отзывы</Text>
         <View style={{paddingHorizontal: 15, justifyContent: "center", alignItems: "center", marginTop: 15, rowGap: 10, paddingBottom: 20}}>
-           { reviews.map((review) => (
-            <ReviewCard data={review} />
+           { reviews.map((review, index) => (
+            <ReviewCard data={review} key={index} />
            )) }
         </View>
       </ScrollView>

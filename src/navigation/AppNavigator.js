@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReviewScreen from '../screens/Reviews/ReviewScreen';
 import ProfileSetting from '../screens/ProfileScreen/ProfileSetting';
 import ProfilePatchScreen from '../screens/ProfileScreen/ProfilePatchScreen';
+import Root from './Root';
 
 const Stack = createStackNavigator();
 
@@ -34,6 +35,11 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName={token ? 'Home' : 'Login'}>
+        <Stack.Screen
+          name="Root"
+          component={Root}
+          options={{ headerShown: false }}
+        />
         {token ? (
           <>
             <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
