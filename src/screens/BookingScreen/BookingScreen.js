@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { View, ScrollView, Text, StyleSheet, Image } from 'react-native'
+import { View, ScrollView, Text, StyleSheet, Image, RefreshControl, Platform } from 'react-native'
 import Navbar from '../../components/Header/Navbar'
 import BookingCard from '../../components/MainCard/BookingCard'
 import { useFonts } from 'expo-font'
@@ -41,9 +41,28 @@ function BookingScreen({ navigation }) {
     return null;
   }
 
+  const [refreshing, setRefreshing] = useState(false); 
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    dispatch(fetchBookings())
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
   return (
     <View style={{ position: "relative", height: "100%" }}>
-        <ScrollView>
+        <ScrollView refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#9Bd35A', '#689F38']} 
+            tintColor={'#689F38'}
+            progressBackgroundColor="#FFFFFF"
+            style={Platform.OS === 'android' ? { backgroundColor: '#689F38' } : {}}
+          />
+        }>
             <Navbar />
             <View style={styles.container}>
               <View style={styles.booking}>

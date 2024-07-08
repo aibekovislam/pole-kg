@@ -32,11 +32,14 @@ const RegisterScreen = ({ navigation }) => {
 
   const handleOpenURL = (event) => {
     const url = event.url;
-    const token = url.split('token=')[1];
-    if (token) {
-      setToken(token);
-      storeData('token', JSON.stringify(token));
-      navigation.navigate('Home');
+    const accessToken = url.split('access_token=')[1]?.split('&')[0];
+    const refreshToken = url.split('refresh_token=')[1];
+
+    if (accessToken && refreshToken) {
+      const tokenObject = { access: accessToken, refresh: refreshToken };
+      setToken(tokenObject);
+      storeData('token', JSON.stringify(tokenObject));
+      navigation.navigate('Root');
     }
   };
 
@@ -58,7 +61,7 @@ const RegisterScreen = ({ navigation }) => {
   
   useEffect(() => {
     if(user && fontsLoaded) {
-      navigation.navigate('Home')
+      navigation.navigate('Root')
     }
   }, [user])
 
@@ -100,7 +103,7 @@ const RegisterScreen = ({ navigation }) => {
                 <CheckPIN setPinTyped={setPinTyped} phoneNumber={number} />
                 <View style={styles.flexGrow} />
                 <View style={styles.btn_block}>
-                  <Button pinTyped={pinTyped} onPress={() => navigation.navigate('Home')} title={'Продолжить'} />
+                  <Button pinTyped={pinTyped} onPress={() => navigation.navigate('Root')} title={'Продолжить'} />
                 </View>
               </>
             ) : (
@@ -126,7 +129,7 @@ const RegisterScreen = ({ navigation }) => {
                       onChangeText={onChangeNumber}
                       value={number}
                       keyboardType="numeric"
-                      placeholder="Введите свой номер"
+                      placeholder="996 Введите свой номер"
                       placeholderTextColor={"gray"}
                     />
                   </TouchableOpacity>

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, ScrollView, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, ScrollView, Text, StyleSheet, RefreshControl, Platform } from 'react-native';
 import Navbar from '../../components/Header/Navbar';
 import { useFonts } from 'expo-font';
 import Button from '../../components/Button/Button';
@@ -16,6 +16,16 @@ function FavoriteScreen({ navigation }) {
         dispatch(fetchSavedFields());
     }, [dispatch]);
 
+    const [refreshing, setRefreshing] = useState(false); 
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        dispatch(fetchSavedFields())
+        setTimeout(() => {
+        setRefreshing(false);
+        }, 2000);
+    }, []);
+
     const handlePress = (id) => {
         navigation.navigate('Detail', { id });
     };
@@ -30,7 +40,16 @@ function FavoriteScreen({ navigation }) {
 
     return (
         <View style={{ position: "relative", height: "100%" }}>
-            <ScrollView>
+            <ScrollView refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    colors={['#9Bd35A', '#689F38']} 
+                    tintColor={'#689F38'}
+                    progressBackgroundColor="#FFFFFF"
+                    style={Platform.OS === 'android' ? { backgroundColor: '#689F38' } : {}}
+                />
+            }>
                 <Navbar />
                 <View style={styles.container}>
                     <View style={styles.booking}>

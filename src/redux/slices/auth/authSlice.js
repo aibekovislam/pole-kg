@@ -128,5 +128,17 @@ export const patchUser = createAsyncThunk('user/patch', async ({ name, phone_num
     }
 });
 
+export const getUserMe = createAsyncThunk('users/me', async ({_}, { dispatch }) => {
+    try {
+        console.log('called');
+        const response = await api.get('/users/me/');
+        console.log(response.data)
+        dispatch(authSlice.actions.setUser(response.data));
+        storeData('userInfo', JSON.stringify(response.data));
+    } catch (error) {
+        console.log('users me error: ', error);
+    }
+})
+
 export const { setUser } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert, RefreshControl, Platform } from 'react-native';
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import BottomNavbar from '../../components/bottomNavbar/BottomNavbar';
 import UserNavbar from '../../components/Header/UserNavbar';
 import OutSvg from '../../../assets/images/svgs/OutSvg';
-import { useDispatch } from 'react-redux';
-import { deleteUser, patchUser } from '../../redux/slices/auth/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteUser, getUserMe, patchUser } from '../../redux/slices/auth/authSlice';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 
@@ -13,12 +13,13 @@ const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/020
 
 const ProfilePatchScreen = ({ navigation, route }) => {
     const { user } = route.params;
-
-    const [name, setName] = useState(user.name);
-    const [phoneNumber, setPhoneNumber] = useState(user.phone_number);
-    const [avatar, setAvatar] = useState(user.avatar || defaultAvatar);
-
     const dispatch = useDispatch();
+
+    const [name, setName] = useState(user?.name || '');
+    const [phoneNumber, setPhoneNumber] = useState(user?.phone_number || '');
+    const [avatar, setAvatar] = useState(user?.avatar || defaultAvatar);
+    const [refreshing, setRefreshing] = useState(false);
+    const [avatarForFetch, setAvatarForFetch] = useState(null);
 
     useEffect(() => {
         getGalleryPermission();
@@ -34,7 +35,7 @@ const ProfilePatchScreen = ({ navigation, route }) => {
     };
 
     const handleBlur = () => {
-        dispatch(patchUser({ name: name, phone_number: phoneNumber, avatar: avatar }));
+        dispatch(patchUser({ name: name, phone_number: phoneNumber, avatar: avatarForFetch.uri }));
     };
 
     const handleChooseAvatar = async () => {
@@ -45,9 +46,19 @@ const ProfilePatchScreen = ({ navigation, route }) => {
                 aspect: [1, 1],
                 quality: 1,
             });
-            
-            if (!result.canceled) {
+
+            if (!result.cancelled) {
+                // Update avatar URI for display
                 setAvatar(result.uri);
+                
+                // Prepare avatar for fetch (FormData)
+                const selectedImage = result.assets[0];
+                setAvatarForFetch({
+                    uri: selectedImage.uri,
+                    name: selectedImage.fileName,
+                    type: selectedImage.type,
+                });
+
                 handleBlur();
             } else {
                 if (!avatar) {
@@ -60,9 +71,26 @@ const ProfilePatchScreen = ({ navigation, route }) => {
         }
     };
 
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        dispatch(getUserMe()); // Повторно загружаем данные пользователя
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 2000);
+    }, []);
+
     return (
         <View style={{ position: "relative" }}>
-            <ScrollView style={{ paddingBottom: 120 }}>
+            <ScrollView refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    colors={['#9Bd35A', '#689F38']} 
+                    tintColor={'#689F38'}
+                    progressBackgroundColor="#FFFFFF"
+                    style={Platform.OS === 'android' ? { backgroundColor: '#689F38' } : {}}
+                />
+            } style={{ paddingBottom: 120 }}>
                 <UserNavbar user={user} />
                 <View style={styles.profile_options_block}>
                     <View style={[styles.options, { position: "relative" }]}>

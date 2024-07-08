@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Navbar from "../../components/Header/Navbar";
 import MainCard from "../../components/MainCard/MainCard";
 import BottomNavbar from "../../components/bottomNavbar/BottomNavbar";
@@ -13,6 +13,15 @@ export default function HomeScreen({ navigation, route }) {
   const dispatch = useDispatch();
   const fields = useSelector(state => state.fields.fields);
   const [ selected, setSelected ] = useState('list')
+  const [refreshing, setRefreshing] = useState(false); 
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    dispatch(fetchFields())
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
   
   useEffect(() => {
     if (!isFiltered) {
@@ -34,7 +43,16 @@ export default function HomeScreen({ navigation, route }) {
 
   return (
     <View style={{ flex: 1, position: "relative", paddingBottom: 100, zIndex: 2 }}>
-      <ScrollView>
+      <ScrollView refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#9Bd35A', '#689F38']} 
+            tintColor={'#689F38'}
+            progressBackgroundColor="#FFFFFF"
+            style={Platform.OS === 'android' ? { backgroundColor: '#689F38' } : {}}
+          />
+        }>
         <Navbar onPress={() => navigation.navigate('Filter', { fields })} filterShow={true} />
         <ListOrMap selected={selected} setSelected={setSelected} />
         <View style={styles.card_list}>

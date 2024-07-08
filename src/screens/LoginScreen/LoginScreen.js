@@ -34,10 +34,13 @@ const LoginScreen = ({ navigation }) => {
 
   const handleOpenURL = (event) => {
     const url = event.url;
-    const tokenFromURL = url.split('token=')[1];
-    if (tokenFromURL) {
-      setToken(tokenFromURL);
-      storeData('token', JSON.stringify(tokenFromURL));
+    const accessToken = url.split('access_token=')[1]?.split('&')[0];
+    const refreshToken = url.split('refresh_token=')[1];
+
+    if (accessToken && refreshToken) {
+      const tokenObject = { access: accessToken, refresh: refreshToken };
+      setToken(tokenObject);
+      storeData('token', JSON.stringify(tokenObject));
       navigation.navigate('Root');
     }
   };
@@ -91,7 +94,7 @@ const LoginScreen = ({ navigation }) => {
                       style={styles.input}
                       onChangeText={onChangeNumber}
                       value={number}
-                      placeholder="Введите свой номер"
+                      placeholder="996 Введите свой номер"
                       keyboardType="numeric"
                       placeholderTextColor={"gray"}
                     />

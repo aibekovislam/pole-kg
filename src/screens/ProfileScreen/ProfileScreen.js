@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Platform } from 'react-native';
 import BottomNavbar from '../../components/bottomNavbar/BottomNavbar';
 import UserNavbar from '../../components/Header/UserNavbar';
 import PenSvg from '../../../assets/images/svgs/PenSvg';
@@ -9,31 +9,60 @@ import SettingsSvg from '../../../assets/images/svgs/Settings';
 import { useFonts } from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { getUserMe } from '../../redux/slices/auth/authSlice';
 
 const ProfileScreen = ({ navigation }) => {
     const [fontsLoaded] = useFonts({
       'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
     });
 
-    const [user, setUser] = useState(null);
+    // const [user, setUser] = useState(null);
+    const user = useSelector((state => state.auth.user));
+    const dispatch = useDispatch();
 
-    const getUser = async () => {
-        const resultUser = await AsyncStorage.getItem('userInfo');
-        if (resultUser) {
-            const parsedUser = JSON.parse(resultUser);
-            setUser(parsedUser);
-        }
-    };
+    useEffect(() => {
+      dispatch(getUserMe())
+    }, [dispatch])
+
+    // const getUser = async () => {
+    //     const resultUser = await AsyncStorage.getItem('userInfo');
+    //     if (resultUser) {
+    //         const parsedUser = JSON.parse(resultUser);
+    //         setUser(parsedUser);
+    //     }
+    // };
 
     useFocusEffect(
         useCallback(() => {
-            getUser();
+            dispatch(getUserMe());
         }, [])
     );
 
+    const [refreshing, setRefreshing] = useState(false); 
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        dispatch(getUserMe())
+        setTimeout(() => {
+        setRefreshing(false);
+        }, 2000);
+    }, []);
+
+    console.log('user:', user)
+
     return (
       <View style={{ position: "relative" }}>
-          <ScrollView style={{paddingBottom: 120}}>
+          <ScrollView refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    colors={['#9Bd35A', '#689F38']} 
+                    tintColor={'#689F38'}
+                    progressBackgroundColor="#FFFFFF"
+                    style={Platform.OS === 'android' ? { backgroundColor: '#689F38' } : {}}
+                />
+            } style={{paddingBottom: 120}}>
               <UserNavbar user={user} />
               <View style={styles.profile_options_block}>
                 <View style={styles.options}>

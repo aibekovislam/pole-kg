@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Animated, ScrollView, Text, TouchableOpacity, View, Platform, TouchableHighlight, ActivityIndicator, TextInput } from 'react-native';
+import { Animated, ScrollView, Text, TouchableOpacity, View, Platform, ActivityIndicator, TextInput, RefreshControl } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Navbar from '../../components/Header/Navbar';
 import CarouselImage from '../../components/Carousel/CarouselImage';
 import RatingNoSVG from '../../../assets/images/svgs/RatingNo';
@@ -27,12 +28,23 @@ export default function DetailScreen({ route, navigation }) {
   const dispatch = useDispatch();
   const field = useSelector(state => state.fields.field);
   const [loading, setLoading] = useState(true);
+  const scrollViewRef = useRef(null);
 
   const today = new Date();
 
   const [token, setToken] = useState(null);
   const [reviewText, setReviewText] = useState('');
   const [selectedRating, setSelectedRating] = useState(0);
+
+  const [refreshing, setRefreshing] = useState(false); 
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    dispatch(fetchField(id)).then(() => setLoading(false));
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
 
   const translateX = useRef(new Animated.Value(0)).current;
 
@@ -59,6 +71,16 @@ export default function DetailScreen({ route, navigation }) {
     dispatch(fetchAvailable(data));
     dispatch(fetchField(id)).then(() => setLoading(false));
   }, [dispatch, id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      translateX.setValue(0);
+
+      return () => {
+        translateX.setValue(0);
+      };
+    }, [])
+  );
 
   const onGestureEvent = Animated.event(
     [{ nativeEvent: { translationX: translateX } }],
@@ -101,7 +123,16 @@ export default function DetailScreen({ route, navigation }) {
 
   const content = (
     <View style={[styles.detail, { position: "relative" }]}>
-      <ScrollView>
+      <ScrollView ref={scrollViewRef} refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#9Bd35A', '#689F38']} 
+            tintColor={'#689F38'}
+            progressBackgroundColor="#FFFFFF"
+            style={Platform.OS === 'android' ? { backgroundColor: '#689F38' } : {}}
+          />
+        }>
         <Navbar />
         <View style={styles.detail_container}>
           <View style={styles.card}>

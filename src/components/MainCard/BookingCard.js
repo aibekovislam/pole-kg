@@ -26,7 +26,7 @@ export default function BookingCard({ data, user }) {
                 <View style={styles.container}>
                     <View style={styles.card_items}>
                         <View style={styles.card_item}>
-                            <Image source={{ uri: user.avatar ? user.avatar : "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" }} alt='pole' style={styles.card_image} />
+                            <Image source={{ uri: user?.avatar ? user?.avatar : "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" }} alt='pole' style={styles.card_image} />
                         </View>
                         <View style={styles.card_item}>
                             <Text style={styles.name}>{ user?.name }</Text>
