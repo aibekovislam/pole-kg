@@ -10,6 +10,7 @@ import { useFonts } from 'expo-font';
 import SaveFilledSVG from '../../../assets/images/svgs/SaveFilled';
 import { saveToFavorite } from '../../redux/slices/fields/fieldSlice';
 import { useDispatch } from 'react-redux';
+import { renderRating } from '../../helpers/renderRating';
 
 export default function MainCard({ field = {}, onPress = () => {}, isFavorite = false }) {
     const dispatch = useDispatch();
@@ -38,11 +39,7 @@ export default function MainCard({ field = {}, onPress = () => {}, isFavorite = 
                         <CarouselImage data={field.images} />
                     </TouchableOpacity>
                     <View style={styles.rating}>
-                        <RatingSVG/>
-                        <RatingSVG/>
-                        <RatingSVG/>
-                        <RatingSVG/>
-                        <RatingNoSVG/>
+                        { renderRating(field?.average_rating) }
                     </View>
                     <View style={styles.title_save}>
                         <TouchableOpacity onPress={() => onPress(field.id)}>

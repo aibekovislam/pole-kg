@@ -141,7 +141,7 @@ const ChooseSlotsScreen = ({ route, navigation }) => {
     }, []);
     
     return (
-        <View style={{ position: "relative", height: "100%", flex: 1, paddingBottom: 100 }}>
+        <View style={{ position: "relative", flex: 1, paddingBottom: 100 }}>
             <ScrollView>
                 <Navbar/>
                 <View style={styles.detail_info}>

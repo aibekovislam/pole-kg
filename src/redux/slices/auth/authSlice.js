@@ -92,7 +92,7 @@ export const deleteUser = createAsyncThunk('auth/delete', async (_, { dispatch }
     }
 })
 
-export const patchUser = createAsyncThunk('user/patch', async ({ name, phone_number, avatar }, { dispatch }) => {
+export const patchUser = createAsyncThunk('user/patch', async ({ name, phone_number, avatar, avatar_name }, { dispatch }) => {
     try {
         const formData = new FormData();
         formData.append('name', name);
@@ -100,7 +100,7 @@ export const patchUser = createAsyncThunk('user/patch', async ({ name, phone_num
         if (avatar) {
             formData.append('avatar', {
                 uri: avatar,
-                name: 'avatar.jpg',
+                name: avatar_name,
                 type: 'image/jpeg',
             });
         }

@@ -1,5 +1,6 @@
 import { format, parseISO } from "date-fns";
 import { ru } from "date-fns/locale";
+import moment from "moment";
 
 export const formatSlot = (start_time, end_time) => {
     const startTime = parseISO(start_time);
@@ -84,14 +85,15 @@ export const formatDateTimeEnd = (dateTimeString) => {
   
 
 export const calculateTimeDifference = (endTimeString) => {
-    const endTime = new Date(endTimeString);
-    const now = new Date();
-  
-    const timeDifference = endTime - now;
-  
-    const hours = Math.floor(timeDifference / (1000 * 60 * 60));
-    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-  
+    const endTime = moment(endTimeString); // Parse endTimeString using moment.js
+
+    const now = moment(); // Current time
+
+    const timeDifference = moment.duration(endTime.diff(now)); // Difference between endTime and now
+
+    const hours = Math.floor(timeDifference.asHours()); // Total hours difference
+    const minutes = timeDifference.minutes(); // Minutes within the last hour
+
     return { hours, minutes };
 }
   

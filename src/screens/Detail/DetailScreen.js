@@ -7,21 +7,20 @@ import RatingNoSVG from '../../../assets/images/svgs/RatingNo';
 import SaveSVG from '../../../assets/images/svgs/SaveSVG';
 import SizeSVG from '../../../assets/images/svgs/SizeSVG';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAvailable, fetchField, reviewPost } from '../../redux/slices/fields/fieldSlice';
+import { fetchAvailable, fetchField, reviewPost, saveToFavorite } from '../../redux/slices/fields/fieldSlice';
 import FieldSVG from '../../../assets/images/svgs/Field';
 import { styles } from './DetailScreenCSS';
 import JustCarousel from '../../components/Carousel/JustCarousel';
 import MapPole from '../../components/map/MapPole';
 import MapSVG from '../../../assets/images/svgs/MapSVG';
 import ReviewCard from '../../components/ReviewCard/ReviewCard';
-import FaveSVG from '../../../assets/images/svgs/FaceSVG';
 import BottomNavbar from '../../components/bottomNavbar/BottomNavbar';
 import Button from '../../components/Button/Button';
 import { GestureHandlerRootView, PanGestureHandler, State } from 'react-native-gesture-handler';
 import { renderRating } from '../../helpers/renderRating';
 import { getData } from '../../helpers/storeHelper';
 import { useFonts } from 'expo-font';
-import RatingSVG from '../../../assets/images/svgs/Rating';
+import SaveFilledSVG from '../../../assets/images/svgs/SaveFilled';
 
 export default function DetailScreen({ route, navigation }) {
   const { id } = route.params;
@@ -33,9 +32,6 @@ export default function DetailScreen({ route, navigation }) {
   const today = new Date();
 
   const [token, setToken] = useState(null);
-  const [reviewText, setReviewText] = useState('');
-  const [selectedRating, setSelectedRating] = useState(0);
-
   const [refreshing, setRefreshing] = useState(false); 
 
   const onRefresh = React.useCallback(() => {
@@ -100,15 +96,6 @@ export default function DetailScreen({ route, navigation }) {
     }
   };
 
-  const handleRatingPress = (rating) => {
-    setSelectedRating(rating);
-  };
-
-  const handleReviewSubmit = () => {
-    setReviewText('');
-    dispatch(reviewPost({ field: field.id, rating: selectedRating, comment: reviewText }));
-  };  
-
   if (!fontsLoaded) {
     return null;
   }
@@ -146,7 +133,9 @@ export default function DetailScreen({ route, navigation }) {
                 </View>
                 <View style={styles.title_save}>
                   <Text style={[styles.title, { fontFamily: "Rubik-500" }]}>{ field?.name }</Text>
-                  <SaveSVG />
+                  <TouchableOpacity onPress={() => dispatch(saveToFavorite(field?.id))}>
+                    { field?.in_favorite ? (<SaveFilledSVG />) : (<SaveSVG/>) }
+                  </TouchableOpacity>
                 </View>
                 <View style={styles.price_and_size}>
                   <Text style={[styles.price_title, { fontFamily: "Rubik-400" }]}>{ parseInt(field?.price) } в час</Text>
@@ -187,35 +176,11 @@ export default function DetailScreen({ route, navigation }) {
               <ReviewCard data={item} key={index} />
             )) }
           </View>
-          { field?.reviews.length > 3 ? (
-              <View style={{ width: "100%", marginTop: 10 }}>
-                <Button title='Посмотреть больше отзывов' onPress={() => navigation.navigate('Reviews', { reviews: field?.reviews })} />
-              </View>
-            ) : (null) }
-          { token ? (
-            <View style={{ rowGap: 10, width: "100%" }}>
-              <View style={styles.review_input}>
-                <View style={styles.container_review}>
-                  <View style={styles.leftSection}>
-                    <FaveSVG />
-                    <TextInput
-                      style={styles.input_review}
-                      onChangeText={setReviewText}
-                      value={reviewText}
-                      placeholder="Оставить отзыв"
-                      multiline
-                    />
-                  </View>
-                  <View style={styles.rightSection}>
-                    {[...Array(5)].map((_, index) => (
-                      <TouchableOpacity key={index} onPress={() => handleRatingPress(index + 1)}>
-                        {index < selectedRating ? <RatingSVG /> : <RatingNoSVG />}
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
-              </View> 
-            <Button title='Оставить отзыв' onPress={() => handleReviewSubmit()} />
+          { field?.reviews ? (
+            <View style={{ width: "100%", marginTop: 5 }}>
+              <TouchableOpacity onPress={() => navigation.navigate('Reviews', { id: id })} style={{ borderRadius: 6, height: 60, justifyContent: "center", alignItems: "center", backgroundColor: "#ffffff" }}>
+                <Text style={{ fontSize: 14, textDecorationLine: "underline", color: "#237133", padding: 0 }}>Больше</Text>
+              </TouchableOpacity>
             </View>
           ) : (null) }
         </View>

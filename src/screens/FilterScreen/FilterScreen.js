@@ -45,8 +45,8 @@ export default function FilterScreen({ navigation }) {
     dispatch(fetchFields({
       length: choosed_slot ? choosed_slot.length : undefined,
       width: choosed_slot ? choosed_slot.width : undefined,
-      fromTime: fromTimeString,
-      toTime: toTimeString
+      start_time: fromTimeString,
+      end_time: toTimeString
     }))
     navigation.navigate('Home', { isFiltered: true })
   }
@@ -163,7 +163,7 @@ export default function FilterScreen({ navigation }) {
               }
             </View>
           </View>
-          <View style={{ marginTop: 20 }}>
+          {/* <View style={{ marginTop: 20 }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
               <Text style={{ fontSize: 14, fontFamily: "Rubik-400" }}>Показать только <Text style={{ color: "#2F80ED" }}>свободные поля</Text></Text>
               <Switch
@@ -174,7 +174,7 @@ export default function FilterScreen({ navigation }) {
                 value={isEnabled}
               />
             </View>
-          </View>
+          </View> */}
         </View>
       </ScrollView>
       <View style={styles.bottomNavbar_block}>

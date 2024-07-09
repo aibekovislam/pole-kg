@@ -17,21 +17,12 @@ const ProfileScreen = ({ navigation }) => {
       'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
     });
 
-    // const [user, setUser] = useState(null);
     const user = useSelector((state => state.auth.user));
     const dispatch = useDispatch();
 
     useEffect(() => {
       dispatch(getUserMe())
     }, [dispatch])
-
-    // const getUser = async () => {
-    //     const resultUser = await AsyncStorage.getItem('userInfo');
-    //     if (resultUser) {
-    //         const parsedUser = JSON.parse(resultUser);
-    //         setUser(parsedUser);
-    //     }
-    // };
 
     useFocusEffect(
         useCallback(() => {
@@ -70,7 +61,7 @@ const ProfileScreen = ({ navigation }) => {
                     <PenSvg/>
                     <Text style={{ fontSize: 16, fontFamily: "Rubik-400" }}>Редактировать аккаунт</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.option}>
+                  <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Booking')}>
                     <TimeSvg/>
                     <Text style={{ fontSize: 16, fontFamily: "Rubik-400" }}>История броней</Text>
                   </TouchableOpacity>

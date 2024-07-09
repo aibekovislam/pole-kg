@@ -23,14 +23,18 @@ const ProfileSetting = ({ navigation, route }) => {
     });
 
     const toggleRussian = () => {
-        setIsRussian(true);
-        setIsKyrgyz(false);
+        setIsRussian(!isRussian);
+        if (!isRussian) {
+            setIsKyrgyz(false);
+        }
     };
-
+    
     const toggleKyrgyz = () => {
-        setIsRussian(false);
-        setIsKyrgyz(true);
-    };
+        setIsKyrgyz(!isKyrgyz);
+        if (!isKyrgyz) {
+            setIsRussian(false);
+        }
+    };    
 
     return (
         <View style={{ position: "relative" }}>

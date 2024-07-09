@@ -13,6 +13,7 @@ export default function MapScreen({ navigation, route }) {
   useEffect(() => {
     if (selected === 'list') {
       navigation.navigate('Home', { isFiltered: false });
+      setSelected('map')
     }
   }, [selected]);
 
@@ -20,11 +21,11 @@ export default function MapScreen({ navigation, route }) {
     <View style={{ flex: 1, position: "relative", width: "100%" }}>
       <ScrollView>
         <Navbar onPress={() => navigation.navigate('Filter', { fields })} filterShow={true} />
-        <View style={{ position: "absolute", zIndex: 2, top: "13%", left: "7%"}}>
-          <ListOrMap selected={selected} setSelected={setSelected} />
-        </View>
         <View style={styles.map_block}>
           <HomeMap fields={fields} navigation={navigation} />
+          <View style={{ position: "absolute", zIndex: 2, top: "0%", left: "0%", right: 0}}>
+            <ListOrMap selected={selected} setSelected={setSelected} />
+          </View>
         </View>
       </ScrollView>
       <View style={styles.bottomNavbar_block}>

@@ -36,9 +36,10 @@ export default function HomeScreen({ navigation, route }) {
   useEffect(() => {
     if(selected === 'map') {
       navigation.navigate('Map', { fields })
+      setSelected('list')
     }
   }, [selected])
-  
+
   // clearAsyncStorage();
 
   return (

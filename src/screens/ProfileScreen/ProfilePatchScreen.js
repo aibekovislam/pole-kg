@@ -25,6 +25,12 @@ const ProfilePatchScreen = ({ navigation, route }) => {
         getGalleryPermission();
     }, []);
 
+    useEffect(() => {
+        if (avatarForFetch) {
+            handleBlur();
+        }
+    }, [avatarForFetch]);
+
     const getGalleryPermission = async () => {
         if (Constants.platform?.ios) {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -35,7 +41,7 @@ const ProfilePatchScreen = ({ navigation, route }) => {
     };
 
     const handleBlur = () => {
-        dispatch(patchUser({ name: name, phone_number: phoneNumber, avatar: avatarForFetch.uri }));
+        dispatch(patchUser({ name: name, phone_number: phoneNumber, avatar: avatarForFetch.uri, avatar_name: avatarForFetch.name }));
     };
 
     const handleChooseAvatar = async () => {
@@ -47,23 +53,16 @@ const ProfilePatchScreen = ({ navigation, route }) => {
                 quality: 1,
             });
 
-            if (!result.cancelled) {
-                // Update avatar URI for display
-                setAvatar(result.uri);
-                
-                // Prepare avatar for fetch (FormData)
+            if (!result.canceled) {
                 const selectedImage = result.assets[0];
+                setAvatar(selectedImage.uri);
                 setAvatarForFetch({
                     uri: selectedImage.uri,
                     name: selectedImage.fileName,
                     type: selectedImage.type,
                 });
-
-                handleBlur();
             } else {
-                if (!avatar) {
-                    setAvatar(defaultAvatar);
-                }
+                setAvatar(defaultAvatar);
             }
         } catch (error) {
             console.log('ImagePicker Error: ', error);
@@ -73,7 +72,7 @@ const ProfilePatchScreen = ({ navigation, route }) => {
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        dispatch(getUserMe()); // Повторно загружаем данные пользователя
+        dispatch(getUserMe());
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);

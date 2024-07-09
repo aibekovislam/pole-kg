@@ -19,7 +19,7 @@ export default function UserNavbar({ user }) {
             </View>
             <View style={styles.navbar_flex_row_text}>
               <Text style={{ fontSize: 20, fontWeight: "500", fontFamily: "Rubik-500", color: "#ffffff" }} >{ user?.name }</Text>
-              <Text style={{ fontSize: 16, fontWeight: "500", fontFamily: "Rubik-500", color: "#ffffff" }} >{ user?.phone_number }</Text>
+              <Text style={{ fontSize: 16, fontWeight: "500", fontFamily: "Rubik-500", color: "#ffffff" }} >+{ user?.phone_number }</Text>
             </View>
           </View>
         </View>

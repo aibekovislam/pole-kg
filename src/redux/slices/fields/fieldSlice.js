@@ -58,17 +58,18 @@ export const fetchFields = createAsyncThunk('fields', async (filters = {}, { dis
             filtersParams.max_width = +filters.width;
             filtersParams.min_width = +filters.width;
         }
-        if (filters.fromTime !== undefined) {
-            filtersParams.schedule_start = filters.fromTime;
+        if (filters.start_time !== undefined) {
+            filtersParams.start_time = filters.start_time;
         }
-        if (filters.toTime !== undefined) {
-            filtersParams.schedule_end = filters.toTime;
+        if (filters.end_time !== undefined) {
+            filtersParams.end_time = filters.end_time;
         }
 
         if (Object.keys(filtersParams).length === 0) {
             response = await api.get(`${API_URL}/fields/`);
         } else {
             response = await api.get(`${API_URL}/fields/`, { params: filtersParams });
+            console.log(filtersParams)
         }
 
         dispatch(fieldSlice.actions.setFields({ fields: response.data.results }));
@@ -150,7 +151,7 @@ export const saveToFavorite = createAsyncThunk(
       try {
         const response = await api.post(`/favorites/`, { field: field_id });
         console.log(response.data);
-        dispatch(fetchFields());
+        dispatch(fetchField(field_id));
         return response.data;
       } catch (error) {
         
