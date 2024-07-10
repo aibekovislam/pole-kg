@@ -21,14 +21,9 @@ const ProfileScreen = ({ navigation }) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-      dispatch(getUserMe())
-    }, [dispatch])
-
-    useFocusEffect(
-        useCallback(() => {
-            dispatch(getUserMe());
-        }, [])
-    );
+      console.log('useEffect called');
+      dispatch(getUserMe());
+    }, [dispatch]);    
 
     const [refreshing, setRefreshing] = useState(false); 
 

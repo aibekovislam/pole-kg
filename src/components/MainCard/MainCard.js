@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Button from '../Button/Button';
 import CarouselImage from '../Carousel/CarouselImage';
@@ -8,12 +8,13 @@ import SaveSVG from '../../../assets/images/svgs/SaveSVG';
 import SizeSVG from '../../../assets/images/svgs/SizeSVG';
 import { useFonts } from 'expo-font';
 import SaveFilledSVG from '../../../assets/images/svgs/SaveFilled';
-import { saveToFavorite } from '../../redux/slices/fields/fieldSlice';
+import { fetchField, saveToFavorite } from '../../redux/slices/fields/fieldSlice';
 import { useDispatch } from 'react-redux';
 import { renderRating } from '../../helpers/renderRating';
 
 export default function MainCard({ field = {}, onPress = () => {}, isFavorite = false }) {
     const dispatch = useDispatch();
+    const [ inFavoite, setInFavorite ] = useState(isFavorite)
 
     const [fontsLoaded] = useFonts({
         'Rubik-400': require("../../../assets/fonts/Rubik-Regular.ttf"),
@@ -45,8 +46,12 @@ export default function MainCard({ field = {}, onPress = () => {}, isFavorite = 
                         <TouchableOpacity onPress={() => onPress(field.id)}>
                             <Text style={styles.title}>{ field.name }</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => dispatch(saveToFavorite(field?.id))}>
-                            { isFavorite ? (<SaveFilledSVG />) : (<SaveSVG/>) }
+                        <TouchableOpacity onPress={() => {
+                            setInFavorite(!inFavoite)
+                            dispatch(saveToFavorite(field?.id))
+                            dispatch(fetchField(field?.id))
+                        }}>
+                            { inFavoite ? (<SaveFilledSVG />) : (<SaveSVG/>) }
                         </TouchableOpacity>
                     </View>
                     <View style={styles.price_and_size}>

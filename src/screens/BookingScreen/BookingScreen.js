@@ -13,6 +13,8 @@ function BookingScreen({ navigation }) {
   const bookings = useSelector((state => state.bookings.bookings));
   const [user, setUser] = useState(null);
 
+  console.log(bookings)
+
   const getUser = async () => {
     const resultUser = await AsyncStorage.getItem('userInfo');
     if (resultUser) {

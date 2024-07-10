@@ -151,7 +151,6 @@ export const saveToFavorite = createAsyncThunk(
       try {
         const response = await api.post(`/favorites/`, { field: field_id });
         console.log(response.data);
-        dispatch(fetchField(field_id));
         return response.data;
       } catch (error) {
         
